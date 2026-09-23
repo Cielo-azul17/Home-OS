@@ -35,7 +35,7 @@ import { AddFlowService } from '../add/add-flow.service';
               } @else {
                 <p>Ready to start organizing your home with HomeOS.</p>
               }
-              <p>Explore the dashboard to manage your assets, track warranties, and stay on top of maintenance.</p>
+              <p class="compact">Explore the dashboard to manage your assets, track warranties, and stay on top of maintenance.</p>
 
               <div class="feature-list">
                 <div class="feature">
@@ -114,6 +114,10 @@ import { AddFlowService } from '../add/add-flow.service';
       color: #666;
       font-size: 16px;
       line-height: 1.5;
+    }
+
+    p.compact {
+      margin-top: -12px;
     }
 
     .skip-text {
