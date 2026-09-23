@@ -18,27 +18,11 @@ import { AddFlowService } from '../add/add-flow.service';
               <h1>Welcome to HomeOS</h1>
               <p>Your AI-powered home management assistant.</p>
               <p>Upload a bill or warranty card, and let AI organize your home.</p>
-              <button class="btn btn-primary" (click)="goToUpload()">
-                Upload Your First Bill
+              <button class="btn btn-primary" (click)="openSmartAdd()">
+                📸 Upload Your First Bill
               </button>
               <p class="skip-text">
                 <button type="button" class="btn-link" (click)="skip()">Or skip for now</button>
-              </p>
-            </div>
-          }
-          @case ('upload') {
-            <div class="step upload-step">
-              <app-icon name="camera" [size]="48" />
-              <h2>Upload a Bill or Invoice</h2>
-              <p>Take a photo or select an image of any bill, invoice, or warranty card.</p>
-              <p class="help-text">HomeOS will automatically extract details and organize it for you.</p>
-
-              <button class="btn btn-primary btn-large" (click)="openSmartAdd()">
-                📸 Take a Photo or Upload
-              </button>
-
-              <p class="skip-text">
-                <button type="button" class="btn-link" (click)="skip()">Skip this step</button>
               </p>
             </div>
           }
@@ -107,7 +91,6 @@ import { AddFlowService } from '../add/add-flow.service';
     }
 
     .welcome-step app-icon,
-    .upload-step app-icon,
     .explore-step app-icon {
       margin: 0 auto;
       color: #4b5563;
@@ -131,11 +114,6 @@ import { AddFlowService } from '../add/add-flow.service';
       color: #666;
       font-size: 16px;
       line-height: 1.5;
-    }
-
-    .help-text {
-      color: #999;
-      font-size: 14px;
     }
 
     .skip-text {
@@ -202,11 +180,6 @@ import { AddFlowService } from '../add/add-flow.service';
     .btn-primary:hover {
       background: #3a4350;
     }
-
-    .btn-large {
-      padding: 16px 32px;
-      font-size: 18px;
-    }
   `]
 })
 export class OnboardingWizard {
@@ -216,19 +189,13 @@ export class OnboardingWizard {
 
   createdCount = 0;
 
-  goToUpload() {
-    this.onboarding.nextStep('upload');
-  }
-
   openSmartAdd() {
-    // Open Smart Add modal, which will create assets
-    // After closing, move to explore step
-    this.flow.open('Asset');
-
-    // Monitor store changes to count created items
     const beforeCount = this.store.assets().length;
 
-    // Set a timeout to check if items were added
+    // Open Smart Add modal
+    this.flow.open('Asset');
+
+    // Check after delay if items were added
     setTimeout(() => {
       const afterCount = this.store.assets().length;
       this.createdCount = Math.max(0, afterCount - beforeCount);
