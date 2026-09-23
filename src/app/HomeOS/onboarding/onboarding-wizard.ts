@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Icon } from '../shared/icon/icon';
 import { OnboardingService } from '../core/onboarding.service';
@@ -30,8 +30,8 @@ import { AddFlowService } from '../add/add-flow.service';
             <div class="step explore-step">
               <app-icon name="check-circle" [size]="48" />
               <h2>You're All Set!</h2>
-              @if (createdCount > 0) {
-                <p>✨ AI created <strong>{{ createdCount }} item{{ createdCount > 1 ? 's' : '' }}</strong> and organized them into rooms.</p>
+              @if (createdCount() > 0) {
+                <p>✨ AI created <strong>{{ createdCount() }} item{{ createdCount() > 1 ? 's' : '' }}</strong> and organized them into rooms.</p>
               } @else {
                 <p>Ready to start organizing your home with HomeOS.</p>
               }
@@ -191,20 +191,36 @@ export class OnboardingWizard {
   private store = inject(HomeStore);
   private flow = inject(AddFlowService);
 
-  createdCount = 0;
+  createdCount = signal(0);
+  private beforeCount = 0;
+
+  constructor() {
+    // Watch for when Smart Add modal closes
+    effect(() => {
+      const isActive = this.flow.active();
+
+      // If modal closes after upload started
+      if (!isActive && this.beforeCount > 0) {
+        // Count assets created
+        const afterCount = this.store.assets().length;
+        this.createdCount.set(Math.max(0, afterCount - this.beforeCount));
+        this.beforeCount = 0;
+
+        // Move to results
+        setTimeout(() => {
+          this.onboarding.nextStep('explore');
+        }, 300);
+      }
+    });
+  }
 
   openSmartAdd() {
-    const beforeCount = this.store.assets().length;
+    // Record count before upload
+    this.beforeCount = this.store.assets().length;
+    this.createdCount.set(0);
 
-    // Open Smart Add modal
+    // Open Smart Add modal - user uploads, AI processes, modal closes
     this.flow.open('Asset');
-
-    // Check after delay if items were added
-    setTimeout(() => {
-      const afterCount = this.store.assets().length;
-      this.createdCount = Math.max(0, afterCount - beforeCount);
-      this.onboarding.nextStep('explore');
-    }, 1000);
   }
 
   skip() {
