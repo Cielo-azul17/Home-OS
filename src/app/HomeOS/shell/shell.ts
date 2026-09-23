@@ -46,10 +46,5 @@ export class Shell {
     void this.store.reload();
   }
 
-  /* Only gate the app once there's a project to sign in to. Without one,
-     HomeOS runs on mock data and there's nothing to authenticate against.
-     `ready` keeps the door from flashing before a stored session loads. */
-  readonly needsAuth = computed(
-    () => false, // TEMP: Skip auth for testing
-  );
+  readonly needsAuth = false as any;
 }
