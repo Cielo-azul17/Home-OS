@@ -46,5 +46,5 @@ export class Shell {
     void this.store.reload();
   }
 
-  readonly needsAuth = false as any;
+  needsAuth() { return false; }
 }
