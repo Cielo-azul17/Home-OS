@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Redirecting...</title>
+    <script>
+      const path = window.location.pathname.replace('/Home-OS/', '');
+      window.location.replace('/Home-OS/index.html?redirect=' + encodeURIComponent(path));
+    </script>
+  </head>
+</html>
