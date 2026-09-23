@@ -1,0 +1,54 @@
+@if (needsAuth()) {
+  <app-sign-in />
+} @else {
+
+<div class="shell">
+  <app-sidebar />
+
+  <div class="shell-main">
+    <main class="shell-content">
+      <!-- A failed snapshot leaves every page looking empty rather than
+           broken, so the shell says it once, here. -->
+      @if (store.loadError(); as message) {
+        <div class="load-error">
+          <app-icon name="alert-triangle" [size]="18" />
+          <div class="load-error-text">
+            <p class="load-error-title">We couldn't load your home</p>
+            <p class="load-error-detail">{{ message }}</p>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="retry()">
+            Try again
+          </button>
+        </div>
+      }
+
+      <router-outlet />
+    </main>
+  </div>
+
+  <nav class="mobile-nav">
+    @for (item of mobileNavItems; track item.path) {
+      <a [routerLink]="item.path" routerLinkActive="active">
+        <app-icon [name]="item.icon" [size]="20" />
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+</div>
+
+<app-add-flow-host />
+<app-toast-host />
+
+@if (help.panelOpen()) {
+  <app-help-panel />
+}
+
+@if (notifications.panelOpen()) {
+  <app-notifications-panel />
+}
+
+@if (documentViewer.activeId()) {
+  <app-document-viewer />
+}
+
+}

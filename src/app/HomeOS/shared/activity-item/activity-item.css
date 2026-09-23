@@ -1,0 +1,55 @@
+/* Shares its row metrics with attention-item and reminder-item so all three
+   dashboard lists sit on the same 57px rhythm. Not interactive, so it has
+   no hover surface. */
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  padding: var(--spacing-8);
+}
+
+.icon-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-input);
+  background: var(--color-stone);
+  color: var(--color-graphite);
+}
+
+.text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-charcoal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-smoke);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timestamp {
+  font-weight: 500;
+  color: var(--color-graphite);
+}

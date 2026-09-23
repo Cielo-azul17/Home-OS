@@ -1,0 +1,58 @@
+<header class="topbar">
+  <app-smart-search
+    class="topbar-search"
+    placeholder="Search anything in your home... (e.g. TV, warranty, kitchen)"
+    [large]="true"
+    [value]="query()"
+    [suggestions]="suggestions()"
+    (valueChange)="query.set($event)"
+    (picked)="onSuggestion($event)"
+    (submitted)="submitSearch($event)"
+  />
+
+  <div class="actions">
+    <div class="menu-anchor">
+      <button type="button" class="add-button" (click)="toggleAddMenu()">
+        <app-icon name="plus" [size]="16" />
+        <span>Add</span>
+      </button>
+
+      @if (isAddMenuOpen()) {
+        <div class="dropdown">
+          @for (action of addMenuActions; track action) {
+            <button
+              type="button"
+              class="dropdown-item"
+              (click)="selectAddAction(action)"
+            >
+              Add {{ action }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="icon-button"
+      [attr.aria-label]="
+        unreadCount() ? unreadCount() + ' unread notifications' : 'Notifications'
+      "
+      (click)="openNotifications()"
+    >
+      <app-icon name="bell" [size]="18" />
+      @if (unreadCount()) {
+        <span class="badge">{{ unreadLabel() }}</span>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="icon-button"
+      aria-label="Help"
+      (click)="openHelp()"
+    >
+      <app-icon name="help-circle" [size]="18" />
+    </button>
+  </div>
+</header>

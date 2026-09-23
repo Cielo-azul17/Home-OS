@@ -1,0 +1,247 @@
+<div class="page-container">
+  @if (asset(); as item) {
+    <a class="back" routerLink="/inventory">
+      <app-icon name="arrow-left" [size]="16" />
+      Back to inventory
+    </a>
+
+    <div class="detail-grid">
+      <div class="main">
+        <section class="hero-card">
+          <div class="hero-media">
+            @if (showImage()) {
+              <img [src]="item.image" [alt]="item.name" (error)="imageFailed.set(true)" />
+            } @else {
+              <div class="media-fallback">
+                <app-icon [name]="fallbackIcon()" [size]="36" />
+              </div>
+            }
+          </div>
+
+          <div class="hero-body">
+            <div class="hero-head">
+              <div>
+                <h1>{{ item.name }}</h1>
+                <p class="hero-meta">
+                  {{ roomName() }} · {{ item.category }}@if (item.brand) {
+                    <span> · {{ item.brand }}</span>
+                  }
+                </p>
+              </div>
+              @if (badge(); as b) {
+                <app-status-badge [label]="b.label" [tone]="b.tone" />
+              }
+            </div>
+
+            @if (item.notes) {
+              <p class="notes">{{ item.notes }}</p>
+            }
+
+            <div class="hero-actions">
+              <button type="button" class="btn btn-secondary" (click)="edit()">
+                <app-icon name="edit" [size]="16" />
+                Edit details
+              </button>
+              <button type="button" class="btn btn-primary" (click)="addReminder()">
+                <app-icon name="bell-plus" [size]="16" />
+                Schedule service
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="addDocument()">
+                <app-icon name="file-plus" [size]="16" />
+                Add document
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="addExpense()">
+                <app-icon name="receipt" [size]="16" />
+                Log expense
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Service & repair history</h2>
+          @if (history().length) {
+            <ul class="timeline">
+              @for (record of history(); track record.id) {
+                <li>
+                  <span class="dot" [class.repair]="record.kind === 'repair'">
+                    <app-icon [name]="record.kind === 'repair' ? 'wrench' : 'check-circle'" [size]="14" />
+                  </span>
+                  <div class="timeline-body">
+                    <p class="timeline-title">{{ record.title }}</p>
+                    <p class="timeline-meta">
+                      {{ date(record.date) }}@if (record.provider) {
+                        <span> · {{ record.provider }}</span>
+                      }
+                    </p>
+                  </div>
+                  @if (record.cost) {
+                    <span class="timeline-cost">{{ money(record.cost) }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">No services or repairs recorded yet.</p>
+          }
+        </section>
+
+        <section class="panel">
+          <h2>Documents</h2>
+          @if (documents().length) {
+            <ul class="doc-list">
+              @for (doc of documents(); track doc.id) {
+                <li>
+                  <button type="button" class="doc-row" (click)="viewDocument(doc.id)">
+                    <app-icon name="file-text" [size]="18" />
+                    <span class="doc-body">
+                      <span class="doc-title" appTruncated>{{ doc.title }}</span>
+                      <span class="doc-meta">{{ doc.kind }} · {{ doc.sizeLabel }}</span>
+                    </span>
+                    <span class="doc-view">View</span>
+                    <app-icon name="chevron-right" [size]="16" class="doc-action" />
+                  </button>
+                  <button
+                    type="button"
+                    class="row-edit"
+                    (click)="editDocument(doc.id)"
+                    [attr.aria-label]="'Edit ' + doc.title"
+                  >
+                    <app-icon name="edit" [size]="14" />
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">No documents attached. Add the invoice or warranty card.</p>
+          }
+        </section>
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <h2>Purchase & warranty</h2>
+          <dl class="facts">
+            @if (item.purchaseDate) {
+              <div>
+                <dt>Purchased</dt>
+                <dd>{{ date(item.purchaseDate) }}</dd>
+              </div>
+            }
+            @if (item.purchasePrice) {
+              <div>
+                <dt>Price</dt>
+                <dd>{{ money(item.purchasePrice) }}</dd>
+              </div>
+            }
+            @if (item.warrantyExpiry) {
+              <div>
+                <dt>Warranty until</dt>
+                <dd>
+                  {{ date(item.warrantyExpiry) }}
+                  <span class="sub" [class.expired]="(warrantyDays() ?? 0) < 0">
+                    {{ relative(item.warrantyExpiry) }}
+                  </span>
+                </dd>
+              </div>
+            }
+            @if (item.serialNumber) {
+              <div>
+                <dt>Serial number</dt>
+                <dd class="mono">{{ item.serialNumber }}</dd>
+              </div>
+            }
+            <div>
+              <dt>Room</dt>
+              <dd>{{ roomName() }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="panel">
+          <h2>Reminders</h2>
+          @if (reminders().length) {
+            <ul class="reminder-list">
+              @for (reminder of reminders(); track reminder.id) {
+                <li>
+                  <button
+                    type="button"
+                    class="check"
+                    [class.done]="reminder.completed"
+                    (click)="toggleReminder(reminder.id)"
+                    [attr.aria-label]="reminder.completed ? 'Mark as not done' : 'Mark as done'"
+                  >
+                    @if (reminder.completed) {
+                      <app-icon name="check" [size]="12" />
+                    }
+                  </button>
+                  <div class="reminder-body">
+                    <p class="reminder-title" [class.done]="reminder.completed">
+                      {{ reminder.title }}
+                    </p>
+                    <p class="reminder-meta">{{ relative(reminder.dueDate) }}</p>
+                  </div>
+                  <app-status-badge
+                    [label]="remBadge(reminder).label"
+                    [tone]="remBadge(reminder).tone"
+                  />
+                  <button
+                    type="button"
+                    class="row-edit"
+                    (click)="editReminder(reminder.id)"
+                    [attr.aria-label]="'Edit ' + reminder.title"
+                  >
+                    <app-icon name="edit" [size]="14" />
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">No reminders for this item yet.</p>
+          }
+        </section>
+
+        @if (expenses().length) {
+          <section class="panel">
+            <h2>Spending</h2>
+            <ul class="expense-list">
+              @for (expense of expenses(); track expense.id) {
+                <li>
+                  <div>
+                    <p class="expense-title">{{ expense.title }}</p>
+                    <p class="expense-meta">{{ date(expense.date) }}</p>
+                  </div>
+                  <span class="expense-amount">{{ money(expense.amount) }}</span>
+                  <button
+                    type="button"
+                    class="row-edit"
+                    (click)="editExpense(expense.id)"
+                    [attr.aria-label]="'Edit ' + expense.title"
+                  >
+                    <app-icon name="edit" [size]="14" />
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        <button
+          type="button"
+          class="btn btn-danger btn-block"
+          [disabled]="removing()"
+          (click)="remove()"
+        >
+          <app-icon name="trash" [size]="16" />
+          Remove from inventory
+        </button>
+      </aside>
+    </div>
+  } @else if (!loading()) {
+    <app-empty-state
+      icon="search"
+      title="We couldn't find that item"
+      message="It may have been removed from your inventory."
+    />
+  }
+</div>

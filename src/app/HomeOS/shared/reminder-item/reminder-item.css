@@ -1,0 +1,96 @@
+/* Shares its row metrics with attention-item and activity-item so all three
+   dashboard lists sit on the same 57px rhythm. */
+
+.reminder-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: var(--radius-input);
+  padding: var(--spacing-8);
+  text-align: left;
+  color: inherit;
+}
+
+.reminder-item:hover {
+  background: var(--color-stone-hover);
+}
+
+.date {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-input);
+  background: var(--color-stone);
+}
+
+.day {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  line-height: 1.1;
+}
+
+.month {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--color-smoke);
+  line-height: 1.1;
+}
+
+.text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-charcoal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-smoke);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* One accent per row: the status carries the urgency, so the date tile
+   stays neutral rather than repeating the same signal. */
+
+.status {
+  font-weight: 500;
+}
+
+.status.error {
+  color: var(--color-error);
+}
+
+.status.warning {
+  color: var(--color-warning);
+}
+
+.status.success {
+  color: var(--color-success);
+}
+
+.status.neutral {
+  color: var(--color-smoke);
+}

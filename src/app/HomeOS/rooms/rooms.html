@@ -1,0 +1,61 @@
+<div class="page-container">
+  <app-page-header
+    title="Rooms"
+    subtitle="Everything you own, organised by where it lives."
+  >
+    <button type="button" class="btn btn-secondary" (click)="addRoom()">
+      <app-icon name="plus" [size]="16" />
+      New room
+    </button>
+    <button type="button" class="btn btn-primary" (click)="addAsset()">
+      <app-icon name="plus" [size]="16" />
+      Add asset
+    </button>
+  </app-page-header>
+
+  @if (loading()) {
+    <div class="room-grid">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="skeleton"></div>
+      }
+    </div>
+  } @else {
+    <div class="room-grid">
+      @for (room of rooms(); track room.id) {
+        <!-- The rename control is a sibling of the link, not inside it —
+             a button nested in an anchor is invalid and swallows clicks. -->
+        <div class="room-tile">
+          <a class="room-card" [routerLink]="['/rooms', room.id]">
+            @if (room.image) {
+              <img [src]="room.image" [alt]="room.name" />
+            } @else {
+              <div class="room-fallback">
+                <app-icon name="door" [size]="32" />
+              </div>
+            }
+            <div class="scrim"></div>
+
+            <div class="room-body">
+              <div>
+                <p class="room-name">{{ room.name }}</p>
+                <p class="room-count">
+                  {{ room.assetCount }} {{ room.assetCount === 1 ? 'item' : 'items' }}
+                </p>
+              </div>
+              <app-icon name="chevron-right" [size]="18" />
+            </div>
+          </a>
+
+          <button
+            type="button"
+            class="rename"
+            (click)="renameRoom($event, room.id)"
+            [attr.aria-label]="'Rename ' + room.name"
+          >
+            <app-icon name="edit" [size]="16" />
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

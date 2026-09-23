@@ -1,1 +1,348 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles — tokens are copied verbatim from the HomeOS Design System
+   (src/Design.system/HomeOS_Design_System (1).md, "Quick Start" section).
+   Do not add colors, sizes or radii here that aren't defined in that doc. */
+
+:root {
+  --color-eggshell: #F8F7F3;
+  --color-surface: #FFFFFF;
+  --color-stone: #F0EEE9;
+  --color-soft-stone: #E3E0D9;
+  --color-charcoal: #242421;
+  --color-graphite: #4E4D48;
+  --color-smoke: #716F68;
+  --color-ash: #A19E96;
+  --color-sage: #68745D;
+  --color-sage-soft: #E8ECE4;
+  --color-success: #5F7A55;
+  --color-warning: #A4773D;
+  --color-error: #A85E55;
+
+  --font-ui: 'Inter', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --text-caption: 12px;
+  --text-body-sm: 14px;
+  --text-body: 16px;
+  --text-body-lg: 18px;
+  --text-subheading: 20px;
+  --text-heading-sm: 28px;
+  --text-heading: 36px;
+  --text-display: 48px;
+
+  --spacing-unit: 4px;
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+
+  --page-max-width: 1280px;
+  --content-max-width: 1200px;
+  --card-padding: 24px;
+
+  --radius-button: 12px;
+  --radius-input: 10px;
+  --radius-card: 16px;
+  --radius-large-card: 20px;
+  --radius-full: 9999px;
+
+  --shadow-subtle:
+    0 1px 2px rgba(36, 36, 33, 0.04),
+    0 4px 12px rgba(36, 36, 33, 0.04);
+
+  /* Soft/tinted surfaces derived from the tokens above via color-mix,
+     for status pills and hover states. Not new colors — mixes of the
+     13 palette colors already defined in the design system. */
+  --color-warning-soft: color-mix(in srgb, var(--color-warning) 14%, var(--color-surface));
+  --color-error-soft: color-mix(in srgb, var(--color-error) 12%, var(--color-surface));
+  --color-success-soft: color-mix(in srgb, var(--color-success) 14%, var(--color-surface));
+  --color-stone-hover: color-mix(in srgb, var(--color-stone) 60%, var(--color-surface));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-eggshell);
+  color: var(--color-charcoal);
+  font-family: var(--font-ui);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input {
+  font-family: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-sage);
+  outline-offset: 2px;
+}
+
+/* Shared page-content wrapper: centers and gutters routed page content.
+   Full-bleed elements (like a hero banner) sit outside this, directly
+   in the route's root, so they can span edge to edge. */
+.page-container {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: var(--spacing-32);
+}
+
+@media (max-width: 1100px) {
+  .page-container {
+    padding: var(--spacing-24) var(--spacing-20);
+  }
+}
+
+@media (max-width: 700px) {
+  .page-container {
+    padding: var(--spacing-20) var(--spacing-16) var(--spacing-96);
+  }
+}
+
+/* ---------- Buttons — spec'd in the design system ("Core Components").
+   Primary: charcoal fill / white text. Secondary: surface fill, soft-stone
+   border. Ghost: transparent with a subtle hover surface. ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  height: 40px;
+  padding: 0 var(--spacing-16);
+  border: 1px solid transparent;
+  border-radius: var(--radius-button);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--color-charcoal);
+  color: var(--color-surface);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-charcoal) 88%, var(--color-surface));
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-charcoal);
+  border-color: var(--color-soft-stone);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-stone);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-smoke);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--color-stone);
+  color: var(--color-charcoal);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--color-error);
+  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--color-error-soft);
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 var(--spacing-12);
+  font-size: var(--text-caption);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* ---------- Tooltip ----------
+   Global because the node lives on <body>, outside every component's
+   styles. Only ever shown for text the layout had to cut off. */
+
+.homeos-tooltip {
+  position: fixed;
+  z-index: 200;
+  max-width: 320px;
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-input);
+  background: var(--color-charcoal);
+  color: var(--color-eggshell);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  box-shadow: var(--shadow-subtle);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+}
+
+.homeos-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------- Save failure ----------
+   Shared by every modal: when a save fails the dialog stays open with the
+   user's input intact, and says what went wrong just above the button that
+   didn't work. */
+
+.save-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-16);
+  padding: var(--spacing-12);
+  border-radius: var(--radius-input);
+  background: var(--color-error-soft);
+  color: var(--color-error);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+}
+
+/* ---------- Form controls ----------
+   Not specified in the design system doc; built from existing tokens only
+   (soft-stone borders, --radius-input, charcoal text, sage focus ring). */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.field-label {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-graphite);
+}
+
+.field-hint {
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}
+
+.field-error {
+  font-size: var(--text-caption);
+  color: var(--color-error);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: var(--spacing-8) var(--spacing-12);
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-input);
+  color: var(--color-charcoal);
+  font-family: inherit;
+  font-size: var(--text-body-sm);
+  transition: border-color 0.15s ease;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--color-ash);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-sage);
+}
+
+.input.invalid,
+.select.invalid {
+  border-color: var(--color-error);
+}
+
+.textarea {
+  min-height: 84px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-smoke) 50%),
+    linear-gradient(135deg, var(--color-smoke) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 17px, calc(100% - 13px) 17px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: var(--spacing-32);
+  cursor: pointer;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-16);
+}
+
+@media (max-width: 700px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}

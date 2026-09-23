@@ -1,0 +1,327 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: block;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-charcoal) 35%, transparent);
+  animation: fade 0.18s ease;
+}
+
+/* Roughly a third of the screen, clamped so it stays readable on a laptop
+   and never swallows a wide monitor. */
+
+.panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: clamp(380px, 34vw, 520px);
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-soft-stone);
+  box-shadow: var(--shadow-subtle);
+  animation: slide 0.22s ease;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+/* Head */
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  padding: var(--spacing-24) var(--spacing-20) var(--spacing-16);
+}
+
+h2 {
+  font-size: var(--text-subheading);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-charcoal);
+}
+
+.heading p {
+  margin-top: var(--spacing-4);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-smoke);
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-input);
+  background: transparent;
+  color: var(--color-smoke);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.icon-button:hover {
+  background: var(--color-stone);
+  color: var(--color-charcoal);
+}
+
+/* Filters — one row, scrolled sideways rather than wrapped, so the list
+   below keeps its height at every width. */
+
+.filters {
+  display: flex;
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-20) var(--spacing-16);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  height: 32px;
+  padding: 0 var(--spacing-12);
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  color: var(--color-graphite);
+  font-size: var(--text-caption);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:hover {
+  background: var(--color-stone-hover);
+}
+
+.chip.active {
+  background: var(--color-charcoal);
+  border-color: var(--color-charcoal);
+  color: var(--color-surface);
+}
+
+.chip-count {
+  color: var(--color-ash);
+}
+
+.chip.active .chip-count {
+  color: var(--color-soft-stone);
+}
+
+/* Body */
+
+.panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--spacing-12) var(--spacing-24);
+}
+
+.group + .group {
+  margin-top: var(--spacing-20);
+}
+
+.group-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-8) var(--spacing-8);
+}
+
+h3 {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ash);
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-stone);
+  color: var(--color-smoke);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) var(--spacing-8);
+  border-radius: var(--radius-input);
+  transition: background 0.15s ease;
+}
+
+.row.clickable:hover {
+  background: var(--color-stone-hover);
+}
+
+/* Unread is carried by weight and a single dot, not a tinted row — the
+   severity colour on the status line has to stay the loudest thing here. */
+
+.row.unread .title {
+  font-weight: 600;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-input);
+  background: var(--color-stone);
+  color: var(--color-graphite);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The panel is narrow, so the title may take two lines but never more. */
+
+.title {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-charcoal);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.meta {
+  margin-top: var(--spacing-4);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-smoke);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  font-weight: 500;
+}
+
+.status.warning {
+  color: var(--color-warning);
+}
+
+.status.error {
+  color: var(--color-error);
+}
+
+.status.neutral {
+  color: var(--color-graphite);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-sage);
+}
+
+.dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-input);
+  color: var(--color-ash);
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.row:hover .dismiss,
+.row:focus-within .dismiss {
+  opacity: 1;
+}
+
+.dismiss:hover {
+  background: var(--color-stone);
+  color: var(--color-charcoal);
+}
+
+/* Foot */
+
+.panel-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) var(--spacing-20);
+  border-top: 1px solid var(--color-soft-stone);
+  background: var(--color-eggshell);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--text-caption);
+  color: var(--color-sage);
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+  .panel {
+    width: 100%;
+    border-left: none;
+  }
+
+  .dismiss {
+    opacity: 1;
+  }
+}

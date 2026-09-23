@@ -1,0 +1,112 @@
+<app-topbar />
+
+<section class="hero">
+  <img class="hero-bg" [src]="heroImage" alt="Warm, sunlit living space" loading="eager" />
+  <div class="hero-inner page-container">
+    <div class="hero-content">
+      <h1>{{ greeting() }}, {{ userName }}</h1>
+      <p>{{ attentionLine() }}</p>
+    </div>
+    <p class="hero-caption">A well managed home is a happier home.</p>
+  </div>
+</section>
+
+<div class="page-container dashboard-body">
+  <div class="row-3col stats-row">
+    @for (stat of overviewStats(); track stat.label) {
+      <app-overview-card [stat]="stat" />
+    }
+  </div>
+
+  <!-- Close to the design system's Dashboard Pattern, with Rooms ahead of
+       Needs Attention: the home itself reads first, then what it wants. -->
+
+  <div class="row-3col rooms-ai-row">
+    <section class="panel rooms-panel">
+      <app-section-header title="Your Rooms" actionLabel="View all rooms" actionLink="/rooms" />
+      <div class="room-grid">
+        @for (room of rooms(); track room.id) {
+          <app-room-card [room]="room" />
+        }
+      </div>
+    </section>
+
+    <app-ai-add-card class="ai-panel" />
+  </div>
+
+  <div class="row-3col insights-row">
+    <section class="panel">
+      <app-section-header
+        title="Needs Attention"
+        actionLabel="View all"
+        actionLink="/reminders"
+        [badge]="attentionCount()"
+      />
+      <div class="stack">
+        @for (item of topAttention(); track item.title) {
+          <app-attention-item [item]="item" />
+        } @empty {
+          @if (!loading()) {
+            <app-empty-state
+              icon="check-circle"
+              title="Nothing needs you"
+              message="No overdue reminders and no warranties expiring soon."
+            />
+          }
+        }
+      </div>
+    </section>
+
+    <section class="panel">
+      <app-section-header title="Recent Activity" />
+      <div class="stack">
+        @for (item of recentActivity(); track item.id) {
+          <app-activity-item [item]="item" />
+        } @empty {
+          @if (!loading()) {
+            <app-empty-state icon="clock" title="No activity yet" message="" />
+          }
+        }
+      </div>
+    </section>
+
+    <section class="panel reminders-panel">
+      <app-section-header title="Upcoming Reminders" actionLabel="View all" actionLink="/reminders" />
+      <div class="stack">
+        @for (item of upcomingReminders(); track item.id) {
+          <app-reminder-item [item]="item" [context]="reminderContext(item.assetId)" />
+        } @empty {
+          @if (!loading()) {
+            <app-empty-state
+              icon="bell"
+              title="Nothing scheduled"
+              message=""
+              actionLabel="Create a reminder"
+              (action)="addReminder()"
+            />
+          }
+        }
+      </div>
+    </section>
+  </div>
+
+  <div class="footer-row">
+    <div class="quote-card">
+      <img class="footer-card-bg" src="/images/footer-quote.png" alt="" />
+      <div class="quote-content">
+        <p class="quote">"A little care goes a long way."</p>
+        <p class="quote-sub">Stay on top of maintenance and keep your home running smoothly.</p>
+      </div>
+    </div>
+
+    <!-- A real observation about this home rather than a link to a tips
+         feed that doesn't exist — so it carries no chevron. -->
+    <div class="tips-card">
+      <img class="footer-card-bg" src="/images/footer-tips.png" alt="" />
+      <div class="tips-content">
+        <p class="tips-title">{{ tip().title }}</p>
+        <p class="tips-sub">{{ tip().text }}</p>
+      </div>
+    </div>
+  </div>
+</div>

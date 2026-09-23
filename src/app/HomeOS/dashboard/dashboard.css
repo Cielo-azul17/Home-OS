@@ -1,0 +1,377 @@
+:host {
+  display: block;
+  --stat-row-height: var(--spacing-80);
+  /* How far the stat cards ride up over the hero's bottom edge — 20px is
+     roughly 10% of the hero's 210px height. */
+  --hero-overlap: var(--spacing-20);
+  /* Five list rows at the design system's comfortable density: each row is
+     57px (14px/1.45 title + 4px + 12px/1.40 meta, with 8px padding), so
+     5 x 57 = 285px, plus the section header (26px + 16px) and 20px card
+     padding top and bottom. Lists are capped at 5 so nothing overflows. */
+  --insight-row-height: 370px;
+}
+
+/* Hero — full-bleed background photo, edge to edge with no outer gutter.
+   The text still aligns to the page-container column via .hero-inner. */
+
+.hero {
+  position: relative;
+  min-height: 210px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* No tint over the photo — the banner shows through clean. */
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  min-height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  /* Keeps the text optically centred in the part of the hero the stat
+     cards don't cover. */
+  padding-bottom: calc(var(--spacing-32) + var(--hero-overlap));
+}
+
+.hero-content {
+  max-width: 520px;
+}
+
+.hero-content h1 {
+  font-size: var(--text-display);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--color-charcoal);
+  margin-bottom: var(--spacing-12);
+}
+
+.hero-content p {
+  font-size: var(--text-body-lg);
+  color: var(--color-graphite);
+}
+
+.hero-caption {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  max-width: 220px;
+  text-align: right;
+  font-size: var(--text-body-sm);
+  line-height: 1.45;
+  color: var(--color-surface);
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-input);
+  background: color-mix(in srgb, var(--color-charcoal) 40%, transparent);
+}
+
+/* The page column is pulled up over the hero so the stat cards straddle its
+   bottom edge. Top padding is dropped rather than fought with, so the
+   overlap stays exactly --hero-overlap at every breakpoint. */
+
+.dashboard-body {
+  position: relative;
+  z-index: 3;
+  padding-top: 0;
+  margin-top: calc(var(--hero-overlap) * -1);
+}
+
+/* Shared panel look */
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-card);
+  padding: var(--card-padding);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* Shared 3-column row grid. */
+
+.row-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-24);
+  align-items: stretch;
+}
+
+/* Row 1 (1x): Assets / Rooms / Reminders / Spent this month — equal width. */
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: var(--stat-row-height);
+  gap: var(--spacing-24);
+  align-items: stretch;
+  margin-bottom: 30px;
+}
+
+/* Row 2 (1.5x): Your Rooms (2 cols) + Add things effortlessly (1 col) */
+
+.rooms-ai-row {
+  grid-auto-rows: minmax(300px, auto);
+  margin-bottom: 30px;
+}
+
+.rooms-panel {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.room-grid {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: var(--spacing-16);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-12);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-soft-stone) transparent;
+}
+
+.room-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.room-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.room-grid::-webkit-scrollbar-thumb {
+  background: var(--color-soft-stone);
+  border-radius: var(--radius-full);
+}
+
+.room-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ash);
+}
+
+.room-grid app-room-card {
+  flex: 0 0 200px;
+}
+
+/* Row 3: Needs Attention / Recent Activity / Upcoming Reminders — three
+   equal columns. Fixed height: the lists are capped at five items, so the
+   row never grows and the page keeps its rhythm. */
+
+.insights-row {
+  grid-auto-rows: var(--insight-row-height);
+  margin-bottom: 30px;
+}
+
+.insights-row .panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Design system card padding is 20–24px; the lists use the lower end so
+     the rows themselves keep the breathing room. */
+  padding: var(--spacing-20);
+}
+
+.insights-row .panel app-section-header {
+  flex-shrink: 0;
+}
+
+.insights-row .stack {
+  flex: 1;
+  min-height: 0;
+  /* Each row carries 8px of its own padding, so adjacent rows already sit
+     16px apart — inside the design system's 8–16px element gap. */
+  gap: 0;
+}
+
+/* Footer row */
+
+/* Same 3-column grid as the rows above, so the tips card lines up exactly
+   with Upcoming Reminders. A 2fr/1fr split would be 8px wider, since it
+   only has one gap to subtract instead of two. */
+
+.footer-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-24);
+}
+
+.quote-card {
+  grid-column: span 2;
+}
+
+.quote-card,
+.tips-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  border-radius: var(--radius-card);
+  padding: var(--card-padding);
+  overflow: hidden;
+  min-height: 132px;
+}
+
+.footer-card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+  z-index: 0;
+}
+
+.quote-card {
+  background: var(--color-stone);
+  color: var(--color-graphite);
+}
+
+.quote-content {
+  position: relative;
+  z-index: 1;
+  max-width: 60%;
+}
+
+.quote {
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  margin-bottom: var(--spacing-4);
+}
+
+.quote-sub {
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+}
+
+.tips-card {
+  background: var(--color-sage-soft);
+  color: var(--color-sage);
+}
+
+.tips-content {
+  position: relative;
+  z-index: 1;
+  max-width: 65%;
+}
+
+.tips-title {
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  margin-bottom: var(--spacing-4);
+}
+
+.tips-sub {
+  font-size: var(--text-body-sm);
+  color: var(--color-graphite);
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rooms-ai-row {
+    grid-template-columns: 1fr;
+  }
+
+  .rooms-panel {
+    grid-column: auto;
+  }
+
+  /* Two up, with Upcoming Reminders taking the full width beneath — three
+     of these lists side by side get too narrow to read below 1100px. */
+
+  .insights-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .insights-row .reminders-panel {
+    grid-column: 1 / -1;
+  }
+
+  .hero,
+  .hero-inner {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 700px) {
+  .hero,
+  .hero-inner {
+    min-height: 240px;
+  }
+
+  .hero-content h1 {
+    font-size: var(--text-heading);
+  }
+
+  .hero-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: var(--spacing-16);
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-caption {
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .rooms-ai-row {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-row {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+
+  .insights-row .reminders-panel {
+    grid-column: auto;
+  }
+
+  .insights-row .panel {
+    min-height: var(--insight-row-height);
+  }
+
+  .room-grid app-room-card {
+    flex-basis: 160px;
+  }
+
+  .footer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-row .quote-card {
+    grid-column: auto;
+  }
+}

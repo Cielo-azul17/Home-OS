@@ -1,0 +1,36 @@
+<aside class="sidebar">
+  <a class="brand" routerLink="/dashboard">
+    <app-icon name="home" [size]="18" />
+    <span class="brand-name">HomeOS</span>
+  </a>
+
+  <nav class="nav">
+    @for (item of navItems; track item.path) {
+      <a class="nav-item" [routerLink]="item.path" routerLinkActive="active">
+        <app-icon [name]="item.icon" [size]="18" />
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <a class="nav-item" [routerLink]="settingsItem.path" routerLinkActive="active">
+      <app-icon [name]="settingsItem.icon" [size]="18" />
+      <span class="nav-label">{{ settingsItem.label }}</span>
+    </a>
+
+    <div class="profile">
+      <span class="avatar">{{ initial() }}</span>
+      <span class="profile-text">
+        <span class="profile-name">{{ name() }}</span>
+        <span class="profile-email" appTruncated>{{ email() }}</span>
+      </span>
+
+      @if (signedIn()) {
+        <button type="button" class="sign-out" (click)="signOut()" aria-label="Sign out">
+          <app-icon name="arrow-left" [size]="16" />
+        </button>
+      }
+    </div>
+  </div>
+</aside>

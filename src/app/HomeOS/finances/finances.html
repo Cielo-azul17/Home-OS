@@ -1,0 +1,176 @@
+<div class="page-container">
+  <app-page-header title="Finances" subtitle="What your home costs to run.">
+    <button type="button" class="btn btn-primary" (click)="addExpense()">
+      <app-icon name="plus" [size]="16" />
+      Log expense
+    </button>
+  </app-page-header>
+
+  <div class="top-row">
+    <section class="spend-card">
+      <!-- The month is the page's frame, so its controls sit on the number
+           they change. -->
+      <div class="month-nav">
+        <button type="button" (click)="stepMonth(-1)" aria-label="Previous month">
+          <app-icon name="chevron-left" [size]="16" />
+        </button>
+        <span class="month-label">{{ monthLabel() }}</span>
+        <button
+          type="button"
+          (click)="stepMonth(1)"
+          [disabled]="atCurrentMonth()"
+          aria-label="Next month"
+        >
+          <app-icon name="chevron-right" [size]="16" />
+        </button>
+      </div>
+
+      <p class="amount">{{ money(monthlySpend()) }}</p>
+
+      @if (change(); as c) {
+        <p class="change" [class.lower]="c.lower">
+          <app-icon [name]="c.lower ? 'arrow-down' : 'arrow-up'" [size]="14" />
+          {{ c.diff }}% {{ c.lower ? 'lower' : 'higher' }} than {{ previousLabel() }}
+        </p>
+      }
+
+      <p class="sub">
+        {{ inMonthCount() }} {{ inMonthCount() === 1 ? 'entry' : 'entries' }}
+        in {{ monthLabel() }}
+      </p>
+    </section>
+
+    <section class="panel breakdown">
+      <h2>Where it went</h2>
+
+      @if (slices().length) {
+        <!-- The ring gives the shape of the month; the list beside it keeps
+             the exact amounts, which a chart alone can't. -->
+        <div class="breakdown-body">
+          <app-donut-chart
+            #donut
+            [segments]="slices()"
+            [total]="money(monthlySpend())"
+            [caption]="monthLabel()"
+          />
+
+          <ul class="legend">
+            @for (slice of slices(); track slice.label; let i = $index) {
+              <li
+                class="legend-row"
+                (mouseenter)="donut.active.set(i)"
+                (mouseleave)="donut.active.set(null)"
+              >
+                <span class="swatch" [style.background]="sliceColor(i)"></span>
+                <span class="legend-label" appTruncated>{{ slice.label }}</span>
+                <span class="legend-percent">{{ slice.percent }}%</span>
+                <span class="legend-value">{{ money(slice.value) }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      } @else {
+        <p class="muted">Nothing logged in {{ monthLabel() }}.</p>
+      }
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="list-head">
+      <h2>{{ listTitle() }}</h2>
+      <span class="list-total">{{ money(listTotal()) }}</span>
+    </div>
+
+    <div class="toolbar">
+      <app-smart-search
+        placeholder="Search every expense by name, category or asset"
+        [value]="search()"
+        [suggestions]="suggestions()"
+        (valueChange)="onSearch($event)"
+        (picked)="onSuggestion($event)"
+      />
+
+      <select
+        class="select filter"
+        [ngModel]="categoryFilter()"
+        (ngModelChange)="onCategory($event)"
+      >
+        <option value="">All categories</option>
+        @for (c of categories; track c) {
+          <option [value]="c">{{ c }}</option>
+        }
+      </select>
+    </div>
+
+    @if (searching()) {
+      <p class="scope-note">
+        Searching every month, not just {{ monthLabel() }}.
+        <button type="button" class="link" (click)="clearFilters()">Clear</button>
+      </p>
+    }
+
+    @if (visible().length) {
+      <div class="expense-list">
+        @for (expense of visible(); track expense.id) {
+          <div class="row">
+            <div class="row-body">
+              <p class="row-title" appTruncated>{{ expense.title }}</p>
+              <p class="row-meta" appTruncated>
+                {{ date(expense.date) }} · {{ expense.category }}
+                @if (assetName(expense.assetId); as name) {
+                  <span> · {{ name }}</span>
+                }
+              </p>
+            </div>
+            <span class="row-amount">{{ money(expense.amount) }}</span>
+            <button
+              type="button"
+              class="action"
+              (click)="edit(expense.id)"
+              [attr.aria-label]="'Edit ' + expense.title"
+            >
+              <app-icon name="edit" [size]="16" />
+            </button>
+            <button
+              type="button"
+              class="action danger"
+              (click)="remove(expense.id)"
+              aria-label="Delete expense"
+            >
+              <app-icon name="trash" [size]="16" />
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (remaining()) {
+        <div class="more">
+          <button type="button" class="btn btn-secondary" (click)="showMore()">
+            Show {{ remaining() }} more
+          </button>
+        </div>
+      }
+    } @else if (!loading()) {
+      @if (searching() || categoryFilter()) {
+        <app-empty-state
+          icon="search"
+          title="No expenses match"
+          message="Try a different search, or clear the filters."
+        />
+        <div class="more">
+          <button type="button" class="btn btn-secondary" (click)="clearFilters()">
+            Clear filters
+          </button>
+        </div>
+      } @else {
+        <app-empty-state
+          icon="wallet"
+          [title]="'Nothing logged in ' + monthLabel()"
+          message="Log a bill or a purchase and HomeOS will keep a light running total."
+          actionLabel="Log an expense"
+          (action)="addExpense()"
+        />
+      }
+    }
+  </section>
+</div>

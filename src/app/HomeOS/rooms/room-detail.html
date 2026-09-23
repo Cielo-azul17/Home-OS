@@ -1,0 +1,55 @@
+@if (room(); as current) {
+  <section class="room-hero">
+    @if (current.image) {
+      <img [src]="current.image" [alt]="current.name" />
+    } @else {
+      <div class="hero-fallback"></div>
+    }
+    <div class="scrim"></div>
+    <div class="hero-inner page-container">
+      <a class="back" routerLink="/rooms">
+        <app-icon name="arrow-left" [size]="16" />
+        All rooms
+      </a>
+    </div>
+  </section>
+
+  <div class="page-container">
+    <app-page-header [title]="current.name" [subtitle]="subtitle()">
+      <button type="button" class="btn btn-secondary" (click)="rename()">
+        <app-icon name="edit" [size]="16" />
+        Rename
+      </button>
+      <button type="button" class="btn btn-primary" (click)="addAsset()">
+        <app-icon name="plus" [size]="16" />
+        Add asset
+      </button>
+    </app-page-header>
+
+    @if (assets().length) {
+      <div class="asset-grid">
+        @for (asset of assets(); track asset.id) {
+          <app-asset-card [asset]="asset" />
+        }
+      </div>
+    } @else {
+      <div class="panel">
+        <app-empty-state
+          icon="box"
+          title="Nothing here yet"
+          [message]="'Add the first item in your ' + current.name + '.'"
+          actionLabel="Add an asset"
+          (action)="addAsset()"
+        />
+      </div>
+    }
+  </div>
+} @else if (!loading()) {
+  <div class="page-container">
+    <app-empty-state
+      icon="door"
+      title="We couldn't find that room"
+      message="It may have been renamed or removed."
+    />
+  </div>
+}

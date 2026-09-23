@@ -1,0 +1,68 @@
+.room-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.room-card:hover {
+  box-shadow: var(--shadow-subtle);
+  border-color: var(--color-ash);
+}
+
+.image-frame {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--color-stone);
+}
+
+.image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-ash);
+}
+
+.body {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  margin-bottom: var(--spacing-4);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+}
+
+.arrow {
+  flex-shrink: 0;
+  color: var(--color-ash);
+}

@@ -1,0 +1,70 @@
+.overview-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  height: 100%;
+  box-sizing: border-box;
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-card);
+  padding: var(--spacing-16) var(--spacing-20);
+}
+
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-input);
+  background: var(--color-stone);
+  color: var(--color-graphite);
+}
+
+.text {
+  min-width: 0;
+}
+
+.value {
+  font-size: var(--text-subheading);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  line-height: 1.2;
+}
+
+.label {
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: var(--spacing-4) var(--spacing-8);
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.trend.positive {
+  background: var(--color-sage-soft);
+  color: var(--color-sage);
+}
+
+.trend.attention {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.trend.neutral {
+  background: var(--color-stone);
+  color: var(--color-smoke);
+}

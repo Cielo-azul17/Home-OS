@@ -1,0 +1,431 @@
+:host {
+  display: block;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-20);
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+}
+
+.back:hover {
+  color: var(--color-charcoal);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-24);
+  align-items: start;
+}
+
+.main,
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-card);
+  padding: var(--card-padding);
+}
+
+h2 {
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  margin-bottom: var(--spacing-16);
+}
+
+.muted {
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+}
+
+/* Hero */
+
+.hero-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-large-card);
+  overflow: hidden;
+}
+
+.hero-media {
+  aspect-ratio: 16 / 9;
+  background: var(--color-stone);
+}
+
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-ash);
+}
+
+.hero-body {
+  padding: var(--card-padding);
+}
+
+.hero-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+
+h1 {
+  font-size: var(--text-heading-sm);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-charcoal);
+  line-height: 1.2;
+}
+
+.hero-meta {
+  margin-top: var(--spacing-4);
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+}
+
+.notes {
+  margin-top: var(--spacing-16);
+  padding: var(--spacing-12) var(--spacing-16);
+  background: var(--color-eggshell);
+  border-radius: var(--radius-input);
+  font-size: var(--text-body-sm);
+  color: var(--color-graphite);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-20);
+}
+
+/* Facts */
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.facts div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+
+dt {
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+}
+
+dd {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  text-align: right;
+}
+
+.sub {
+  display: block;
+  font-weight: 400;
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}
+
+.sub.expired {
+  color: var(--color-error);
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+/* Timeline */
+
+.timeline,
+.doc-list,
+.reminder-list,
+.expense-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) 0;
+  border-bottom: 1px solid var(--color-soft-stone);
+}
+
+.timeline li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.timeline li:first-child {
+  padding-top: 0;
+}
+
+.dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.dot.repair {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.timeline-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline-title {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+}
+
+.timeline-meta {
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}
+
+.timeline-cost {
+  font-size: var(--text-body-sm);
+  color: var(--color-graphite);
+}
+
+/* Documents */
+
+/* A small pencil on every editable row. It appears on hover so the lists
+   stay quiet, and is always visible on touch. */
+
+.row-edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-input);
+  color: var(--color-ash);
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+li:hover > .row-edit,
+.row-edit:focus-visible {
+  opacity: 1;
+}
+
+.row-edit:hover {
+  background: var(--color-stone);
+  color: var(--color-charcoal);
+}
+
+.doc-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  border-bottom: 1px solid var(--color-soft-stone);
+}
+
+.doc-list li:last-child {
+  border-bottom: none;
+}
+
+.doc-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  padding: var(--spacing-12) var(--spacing-8);
+  margin: 0 calc(var(--spacing-8) * -1);
+  background: none;
+  border: none;
+  border-radius: var(--radius-input);
+  text-align: left;
+  color: var(--color-smoke);
+}
+
+.doc-row:hover {
+  background: var(--color-stone-hover);
+}
+
+.doc-view {
+  flex-shrink: 0;
+  font-size: var(--text-caption);
+  font-weight: 500;
+  color: var(--color-sage);
+}
+
+.doc-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-title {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+}
+
+.doc-meta {
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}
+
+.doc-action {
+  color: var(--color-ash);
+}
+
+/* Reminders */
+
+.reminder-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) 0;
+  border-bottom: 1px solid var(--color-soft-stone);
+}
+
+.reminder-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.reminder-list li:first-child {
+  padding-top: 0;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-soft-stone);
+  border-radius: var(--radius-full);
+  color: var(--color-surface);
+}
+
+.check:hover {
+  border-color: var(--color-sage);
+}
+
+.check.done {
+  background: var(--color-sage);
+  border-color: var(--color-sage);
+}
+
+.reminder-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.reminder-title {
+  font-size: var(--text-body-sm);
+  color: var(--color-charcoal);
+}
+
+.reminder-title.done {
+  color: var(--color-ash);
+  text-decoration: line-through;
+}
+
+.reminder-meta {
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}
+
+/* Expenses */
+
+.expense-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-12) 0;
+  border-bottom: 1px solid var(--color-soft-stone);
+}
+
+.expense-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.expense-list li:first-child {
+  padding-top: 0;
+}
+
+.expense-list li > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.expense-title {
+  font-size: var(--text-body-sm);
+  color: var(--color-charcoal);
+}
+
+.expense-meta {
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}
+
+.expense-amount {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+}
+
+@media (hover: none) {
+  .row-edit {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1100px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

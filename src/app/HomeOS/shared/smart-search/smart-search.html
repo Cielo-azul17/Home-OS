@@ -1,0 +1,43 @@
+<label class="search" [class.large]="large()">
+  <app-icon name="search" [size]="large() ? 18 : 16" />
+  <input
+    type="text"
+    [placeholder]="placeholder()"
+    [ngModel]="value()"
+    (ngModelChange)="onInput($event)"
+    (focus)="onFocus()"
+    (keydown)="onKeydown($event)"
+    autocomplete="off"
+  />
+  @if (value()) {
+    <button type="button" class="clear" (click)="onInput('')" aria-label="Clear search">
+      <app-icon name="x" [size]="14" />
+    </button>
+  }
+</label>
+
+@if (showList()) {
+  <div class="suggestions" role="listbox">
+    @for (item of suggestions(); track item.id; let i = $index) {
+      <button
+        type="button"
+        class="suggestion"
+        [class.highlighted]="i === highlighted()"
+        (mouseenter)="highlighted.set(i)"
+        (click)="pick(item)"
+      >
+        <app-icon [name]="item.icon" [size]="16" />
+        <span class="suggestion-body">
+          <span class="suggestion-label" [appTruncated]="item.label">
+            {{ parts(item.label).before
+            }}<mark>{{ parts(item.label).match }}</mark
+            >{{ parts(item.label).after }}
+          </span>
+          @if (item.detail) {
+            <span class="suggestion-detail" appTruncated>{{ item.detail }}</span>
+          }
+        </span>
+      </button>
+    }
+  </div>
+}

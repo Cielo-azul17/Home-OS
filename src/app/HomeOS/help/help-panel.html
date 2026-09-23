@@ -1,0 +1,72 @@
+<div class="scrim" (click)="close()"></div>
+
+<aside class="panel" role="dialog" aria-label="Help">
+  <header class="panel-head">
+    <div class="heading">
+      <h2>Help</h2>
+      <p>How HomeOS works, in four short answers.</p>
+    </div>
+
+    <button type="button" class="icon-button" (click)="close()" aria-label="Close help">
+      <app-icon name="x" [size]="18" />
+    </button>
+  </header>
+
+  <div class="panel-body">
+    <div class="intro">
+      <p>
+        HomeOS keeps what your home owns — the things, the paperwork and the
+        money — in one place, so nothing lapses quietly.
+      </p>
+      <button type="button" class="btn btn-primary btn-sm" (click)="tryIt()">
+        <app-icon name="camera" [size]="16" />
+        Try it with a photo
+      </button>
+    </div>
+
+    <div class="topics">
+      @for (topic of topics; track topic.id) {
+        <section class="topic" [class.open]="openTopic() === topic.id">
+          <button type="button" class="topic-head" (click)="toggleTopic(topic.id)">
+            <span class="tile">
+              <app-icon [name]="topic.icon" [size]="16" />
+            </span>
+            <span class="topic-text">
+              <span class="topic-title">{{ topic.title }}</span>
+              <span class="topic-summary">{{ topic.summary }}</span>
+            </span>
+            <app-icon
+              [name]="openTopic() === topic.id ? 'chevron-down' : 'chevron-right'"
+              [size]="16"
+            />
+          </button>
+
+          @if (openTopic() === topic.id) {
+            <ul class="points">
+              @for (point of topic.points; track point) {
+                <li>{{ point }}</li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    </div>
+
+    <section class="shortcuts">
+      <h3>Keyboard</h3>
+      <dl>
+        @for (item of shortcuts; track item.keys) {
+          <div class="shortcut">
+            <dt><kbd>{{ item.keys }}</kbd></dt>
+            <dd>{{ item.action }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+  </div>
+
+  <footer class="panel-foot">
+    <span>HomeOS V1 · Organize</span>
+    <span class="muted">Your data stays on this device</span>
+  </footer>
+</aside>

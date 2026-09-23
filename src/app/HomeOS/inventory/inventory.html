@@ -1,0 +1,118 @@
+<div class="page-container">
+  <app-page-header
+    title="Inventory"
+    [subtitle]="
+      loading()
+        ? 'Loading your home…'
+        : filtered().length + ' items · ' + money(totalValue()) + ' total value'
+    "
+  >
+    <button type="button" class="btn btn-primary" (click)="addAsset()">
+      <app-icon name="plus" [size]="16" />
+      Add asset
+    </button>
+  </app-page-header>
+
+  <div class="toolbar">
+    <app-smart-search
+      placeholder="Search by name, brand, room or category"
+      [value]="search()"
+      [suggestions]="suggestions()"
+      (valueChange)="search.set($event)"
+      (picked)="onSuggestion($event)"
+    />
+
+    <select class="select filter" [ngModel]="roomFilter()" (ngModelChange)="roomFilter.set($event)">
+      <option value="">All rooms</option>
+      @for (room of rooms(); track room.id) {
+        <option [value]="room.id">{{ room.name }}</option>
+      }
+    </select>
+
+    <select
+      class="select filter"
+      [ngModel]="categoryFilter()"
+      (ngModelChange)="categoryFilter.set($event)"
+    >
+      <option value="">All categories</option>
+      @for (c of categories; track c) {
+        <option [value]="c">{{ c }}</option>
+      }
+    </select>
+
+    <div class="view-toggle">
+      <button
+        type="button"
+        [class.active]="view() === 'grid'"
+        (click)="view.set('grid')"
+        aria-label="Grid view"
+      >
+        <app-icon name="grid" [size]="16" />
+      </button>
+      <button
+        type="button"
+        [class.active]="view() === 'list'"
+        (click)="view.set('list')"
+        aria-label="List view"
+      >
+        <app-icon name="list" [size]="16" />
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="skeleton-grid">
+      @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+        <div class="skeleton"></div>
+      }
+    </div>
+  } @else if (!filtered().length) {
+    <div class="panel">
+      @if (hasFilters()) {
+        <app-empty-state
+          icon="search"
+          title="Nothing matches those filters"
+          message="Try a different search term, or clear the filters to see everything."
+          actionLabel=""
+        />
+        <div class="center">
+          <button type="button" class="btn btn-secondary" (click)="clearFilters()">
+            Clear filters
+          </button>
+        </div>
+      } @else {
+        <app-empty-state
+          icon="box"
+          title="Your inventory is empty"
+          message="Add your first item and HomeOS will keep track of its warranty, servicing and documents."
+          actionLabel="Add your first asset"
+          (action)="addAsset()"
+        />
+      }
+    </div>
+  } @else if (view() === 'grid') {
+    <div class="asset-grid">
+      @for (asset of filtered(); track asset.id) {
+        <app-asset-card [asset]="asset" />
+      }
+    </div>
+  } @else {
+    <div class="asset-list">
+      @for (asset of filtered(); track asset.id) {
+        <a class="row" [routerLink]="['/inventory', asset.id]">
+          <div class="row-main">
+            <p class="row-name">{{ asset.name }}</p>
+            <p class="row-meta">{{ roomName(asset.roomId) }} · {{ asset.category }}</p>
+          </div>
+          @if (asset.purchasePrice) {
+            <span class="row-price">{{ money(asset.purchasePrice) }}</span>
+          }
+          @if (badge(asset); as b) {
+            <app-status-badge [label]="b.label" [tone]="b.tone" />
+          }
+          <app-icon name="chevron-right" [size]="16" class="row-arrow" />
+        </a>
+      }
+    </div>
+  }
+</div>

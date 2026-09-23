@@ -1,0 +1,28 @@
+<a class="asset-card" [routerLink]="['/inventory', asset().id]">
+  <div class="media">
+    @if (showImage()) {
+      <img
+        [src]="asset().image"
+        [alt]="asset().name"
+        loading="lazy"
+        (error)="imageFailed.set(true)"
+      />
+    } @else {
+      <div class="media-fallback">
+        <app-icon [name]="fallbackIcon()" [size]="28" />
+      </div>
+    }
+  </div>
+
+  <div class="body">
+    <p class="name" appTruncated>{{ asset().name }}</p>
+    <p class="meta" appTruncated>{{ roomName() }} · {{ asset().category }}</p>
+    <!-- Always rendered, even when there's no warranty, so every card is
+         the same height whether or not it has a badge. -->
+    <div class="status">
+      @if (badge(); as b) {
+        <app-status-badge [label]="b.label" [tone]="b.tone" />
+      }
+    </div>
+  </div>
+</a>

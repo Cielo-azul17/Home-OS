@@ -1,0 +1,31 @@
+.coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--spacing-16);
+  min-height: 60vh;
+}
+
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--color-sage-soft);
+  color: var(--color-sage);
+}
+
+h1 {
+  font-size: var(--text-heading-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+}
+
+p {
+  font-size: var(--text-body);
+  color: var(--color-smoke);
+}

@@ -1,0 +1,126 @@
+:host {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-width: 220px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  height: 40px;
+  padding: 0 var(--spacing-12);
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-input);
+  color: var(--color-smoke);
+}
+
+.search.large {
+  height: 44px;
+  padding: 0 var(--spacing-16);
+}
+
+.search:focus-within {
+  border-color: var(--color-sage);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: var(--text-body-sm);
+  color: var(--color-charcoal);
+}
+
+.search input::placeholder {
+  color: var(--color-ash);
+}
+
+.clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--color-stone);
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--color-smoke);
+}
+
+.clear:hover {
+  background: var(--color-soft-stone);
+  color: var(--color-charcoal);
+}
+
+/* Suggestions */
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + var(--spacing-4));
+  left: 0;
+  right: 0;
+  z-index: 40;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: var(--spacing-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-subtle);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-soft-stone) transparent;
+}
+
+.suggestion {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  padding: var(--spacing-8) var(--spacing-12);
+  background: none;
+  border: none;
+  border-radius: var(--radius-input);
+  text-align: left;
+  color: var(--color-smoke);
+}
+
+.suggestion.highlighted {
+  background: var(--color-stone-hover);
+}
+
+.suggestion-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.suggestion-label {
+  font-size: var(--text-body-sm);
+  line-height: 1.45;
+  color: var(--color-charcoal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The typed portion, emphasised without a highlighter-pen background. */
+.suggestion-label mark {
+  background: none;
+  font-weight: 600;
+  color: var(--color-sage);
+}
+
+.suggestion-detail {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-smoke);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,0 +1,96 @@
+<div class="page-container">
+  <app-page-header
+    title="Documents"
+    subtitle="Warranties, invoices, manuals and policies — all in one place."
+  >
+    <button type="button" class="btn btn-primary" (click)="addDocument()">
+      <app-icon name="plus" [size]="16" />
+      Add document
+    </button>
+  </app-page-header>
+
+  <div class="toolbar">
+    <app-smart-search
+      placeholder="Search documents"
+      [value]="search()"
+      [suggestions]="suggestions()"
+      (valueChange)="search.set($event)"
+      (picked)="onSuggestion($event)"
+    />
+
+    <select class="select filter" [ngModel]="kindFilter()" (ngModelChange)="kindFilter.set($event)">
+      <option value="">All types</option>
+      @for (k of kinds; track k) {
+        <option [value]="k">{{ k }}</option>
+      }
+    </select>
+
+    <select class="select filter" [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+      <option value="latest">Latest first</option>
+      <option value="oldest">Oldest first</option>
+      <option value="name">Name A–Z</option>
+    </select>
+  </div>
+
+  <section class="panel">
+    @if (filtered().length) {
+      <div class="doc-list">
+        @for (doc of filtered(); track doc.id) {
+          <div class="row">
+            <div class="tile">
+              <app-icon name="file-text" [size]="18" />
+            </div>
+
+            <div class="body">
+              <p class="title">{{ doc.title }}</p>
+              <p class="meta" appTruncated>
+                {{ doc.fileName }} · {{ doc.sizeLabel }} · added {{ date(doc.addedDate) }}
+                @if (assetName(doc.assetId); as name) {
+                  <span> · {{ name }}</span>
+                }
+              </p>
+            </div>
+
+            <app-status-badge [label]="doc.kind" tone="neutral" />
+
+            <button type="button" class="btn btn-secondary btn-sm" (click)="view(doc.id)">
+              View
+            </button>
+            <button
+              type="button"
+              class="action"
+              (click)="edit(doc.id)"
+              [attr.aria-label]="'Edit ' + doc.title"
+            >
+              <app-icon name="edit" [size]="16" />
+            </button>
+            <button
+              type="button"
+              class="action danger"
+              (click)="remove(doc.id)"
+              aria-label="Delete document"
+            >
+              <app-icon name="trash" [size]="16" />
+            </button>
+          </div>
+        }
+      </div>
+    } @else if (!loading()) {
+      @if (hasFilters()) {
+        <app-empty-state
+          icon="search"
+          title="No documents match"
+          message="Try a different search or filter."
+        />
+      } @else {
+        <app-empty-state
+          icon="file-text"
+          title="No documents yet"
+          message="Upload a warranty card or an invoice so it's there when you need it."
+          actionLabel="Add a document"
+          (action)="addDocument()"
+        />
+      }
+    }
+  </section>
+</div>

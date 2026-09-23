@@ -1,0 +1,14 @@
+<div class="activity-item">
+  <span class="icon-badge">
+    <app-icon [name]="item().icon" [size]="16" />
+  </span>
+  <span class="text">
+    <span class="title" appTruncated>{{ item().title }}</span>
+    <span class="meta" appTruncated>
+      <span class="timestamp">{{ timestamp() }}</span>
+      @if (item().context) {
+        <span> · {{ item().context }}</span>
+      }
+    </span>
+  </span>
+</div>

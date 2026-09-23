@@ -1,0 +1,184 @@
+<app-modal
+  [title]="editing() ? 'Edit asset' : 'Add an asset'"
+  [subtitle]="
+    editing()
+      ? 'Correct anything the scan got wrong.'
+      : 'Add a photo or invoice and HomeOS will fill this in, or type it yourself.'
+  "
+  (closed)="close()"
+>
+  @if (editing()) {
+    <!-- Editing keeps the photo but not the scan: re-reading a bill here
+         would overwrite the corrections the user came to make. -->
+    @if (photo(); as image) {
+      <div class="scanned">
+        <img class="scan-thumb" [src]="image" alt="" />
+        <div class="scan-text">
+          <span class="scan-done">
+            <app-icon name="image" [size]="16" />
+            Current photo
+          </span>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="clearPhoto()">Remove</button>
+      </div>
+    } @else {
+      <app-photo-upload (picked)="onPhotoOnly($event)" />
+    }
+  } @else if (!photo()) {
+    <app-photo-upload (picked)="onPhoto($event)" />
+    <div class="divider"><span>or enter the details</span></div>
+  } @else {
+    <div class="scanned">
+      <img class="scan-thumb" [src]="photo()" alt="Uploaded photo" />
+      <div class="scan-text">
+        @if (reading()) {
+          <span class="reading">
+            <app-icon name="sparkle" [size]="16" />
+            {{ aiStatus() }}
+          </span>
+        } @else if (aiError()) {
+          <span class="scan-error">{{ aiError() }}</span>
+        } @else {
+          <span class="scan-done">
+            <app-icon name="check-circle" [size]="16" />
+            Details filled in from your photo
+          </span>
+        }
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="clearPhoto()">Remove</button>
+    </div>
+  }
+
+  <!-- A bill is rarely just an asset. Offer the records it also implies
+       rather than sending the user to other screens to add them. -->
+  @if (expenseExtra() || documentExtra()) {
+    <section class="extras">
+      <p class="extras-title">
+        <app-icon name="sparkle" [size]="14" />
+        This also looks like more than an asset
+      </p>
+
+      @if (expenseExtra(); as e) {
+        <label class="extra">
+          <input type="checkbox" [checked]="keepExpense()" (change)="keepExpense.set(!keepExpense())" />
+          <app-icon name="receipt" [size]="16" />
+          <span class="extra-body">
+            <span class="extra-label">Log an expense</span>
+            <span class="extra-detail">₹{{ e.amount }} · {{ e.category }}</span>
+          </span>
+        </label>
+      }
+
+      @if (documentExtra(); as d) {
+        <label class="extra">
+          <input type="checkbox" [checked]="keepDocument()" (change)="keepDocument.set(!keepDocument())" />
+          <app-icon name="file-text" [size]="16" />
+          <span class="extra-body">
+            <span class="extra-label">Save the document</span>
+            <span class="extra-detail">{{ d.kind }} · {{ d.sizeLabel }}</span>
+          </span>
+        </label>
+      }
+
+      @if (extraCount()) {
+        <p class="extras-note">Linked to this asset, so you won't have to add them separately.</p>
+      }
+
+      @if (extraAssets() > 0) {
+        <p class="extras-more">
+          This photo holds {{ extraAssets() }} more
+          {{ extraAssets() === 1 ? 'purchase' : 'purchases' }}. This form adds one —
+          <button type="button" class="link" (click)="openSmartAdd()">add them all instead</button>.
+        </p>
+      }
+    </section>
+  }
+
+  <div class="form">
+    <div class="field">
+      <label class="field-label" for="asset-name">Name</label>
+      <input
+        id="asset-name"
+        class="input"
+        [(ngModel)]="name"
+        placeholder="e.g. Samsung 55&quot; QLED TV"
+      />
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label" for="asset-brand">Brand</label>
+        <input id="asset-brand" class="input" [(ngModel)]="brand" placeholder="Optional" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="asset-category">Category</label>
+        <select id="asset-category" class="select" [(ngModel)]="category">
+          @for (c of categories; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="asset-room">Room</label>
+      <select id="asset-room" class="select" [(ngModel)]="roomId">
+        @for (room of rooms(); track room.id) {
+          <option [value]="room.id">{{ room.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label" for="asset-date">Purchase date</label>
+        <input id="asset-date" class="input" type="date" [(ngModel)]="purchaseDate" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="asset-price">Purchase price</label>
+        <input
+          id="asset-price"
+          class="input"
+          type="number"
+          [(ngModel)]="purchasePrice"
+          placeholder="₹"
+        />
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label" for="asset-warranty">Warranty until</label>
+        <input id="asset-warranty" class="input" type="date" [(ngModel)]="warrantyExpiry" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="asset-serial">Serial number</label>
+        <input id="asset-serial" class="input" [(ngModel)]="serialNumber" placeholder="Optional" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="asset-notes">Notes</label>
+      <textarea
+        id="asset-notes"
+        class="textarea"
+        [(ngModel)]="notes"
+        placeholder="Anything worth remembering about this item"
+      ></textarea>
+    </div>
+  </div>
+
+  @if (saveError()) {
+    <p class="save-error">
+      <app-icon name="alert-triangle" [size]="14" />
+      {{ saveError() }}
+    </p>
+  }
+
+  <ng-container modalFooter>
+    <button type="button" class="btn btn-ghost" (click)="close()">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="!canSave || saving()" (click)="save()">
+      {{ saving() ? 'Saving…' : saveLabel() }}
+    </button>
+  </ng-container>
+</app-modal>

@@ -1,0 +1,15 @@
+<button type="button" class="reminder-item">
+  <span class="date">
+    <span class="day">{{ date().day }}</span>
+    <span class="month">{{ date().month }}</span>
+  </span>
+  <span class="text">
+    <span class="title" appTruncated>{{ item().title }}</span>
+    <span class="meta" appTruncated>
+      <span class="status" [class]="badge().tone">{{ badge().label }}</span>
+      @if (context()) {
+        <span> · {{ context() }}</span>
+      }
+    </span>
+  </span>
+</button>

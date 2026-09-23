@@ -1,0 +1,361 @@
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  margin: var(--spacing-20) 0;
+  color: var(--color-ash);
+  font-size: var(--text-caption);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-soft-stone);
+}
+
+/* Reading — one photo at a time, with the queue visible so a batch doesn't
+   look like it has stalled. */
+
+.reading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-24) 0;
+}
+
+.reading-text {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  color: var(--color-sage);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+}
+
+.reading-text app-icon {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.progress {
+  width: 100%;
+  max-width: 280px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-stone);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-sage);
+  transition: width 0.25s ease;
+}
+
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-8);
+}
+
+.thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--color-soft-stone);
+  transition: opacity 0.2s ease;
+}
+
+.thumb.pending {
+  opacity: 0.35;
+}
+
+/* Review */
+
+/* Why N photos became M records */
+
+.explainer {
+  padding: var(--spacing-16);
+  margin-bottom: var(--spacing-16);
+  border-radius: var(--radius-card);
+  background: var(--color-stone);
+}
+
+.explainer-head {
+  font-size: var(--text-body-sm);
+  line-height: 1.45;
+  color: var(--color-charcoal);
+}
+
+.explainer-body {
+  margin-top: var(--spacing-4);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-smoke);
+}
+
+.explainer-body strong {
+  font-weight: 500;
+  color: var(--color-graphite);
+}
+
+.explainer-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-12);
+  padding-top: var(--spacing-12);
+  border-top: 1px solid var(--color-soft-stone);
+  font-size: var(--text-caption);
+  color: var(--color-graphite);
+}
+
+.explainer-counts span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-16);
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+}
+
+.bulk {
+  display: flex;
+  gap: var(--spacing-12);
+}
+
+.bulk button {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-sage);
+}
+
+.bulk button:hover {
+  text-decoration: underline;
+}
+
+.scan-group {
+  margin-bottom: var(--spacing-20);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.scan-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) var(--spacing-16);
+  background: var(--color-sage-soft);
+}
+
+.scan-thumb {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: var(--radius-input);
+  border: 1px solid color-mix(in srgb, var(--color-sage) 25%, transparent);
+}
+
+.scan-meta {
+  min-width: 0;
+}
+
+.scan-kind {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-sage);
+  line-height: 1.45;
+}
+
+.scan-summary {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-graphite);
+}
+
+/* One purchase — its product, expense and document stay together. */
+
+.purchase {
+  border-top: 1px solid var(--color-soft-stone);
+}
+
+.purchase-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) var(--spacing-16) var(--spacing-4);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+}
+
+.purchase-count {
+  flex-shrink: 0;
+  font-size: var(--text-caption);
+  font-weight: 400;
+  color: var(--color-ash);
+}
+
+.record {
+  transition: opacity 0.15s ease;
+}
+
+.record.off {
+  opacity: 0.5;
+}
+
+.record-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-16);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--color-soft-stone);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-surface);
+}
+
+.check.on {
+  background: var(--color-sage);
+  border-color: var(--color-sage);
+}
+
+.record-main {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-8) 0;
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--color-smoke);
+}
+
+/* Fixed-width type label so Product / Expense / Document line up down the
+   list and the three-per-purchase pattern is obvious at a glance. */
+
+.record-kind {
+  flex-shrink: 0;
+  width: 66px;
+  font-size: var(--text-caption);
+  font-weight: 500;
+  color: var(--color-smoke);
+}
+
+.record-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.record-title {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-charcoal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-detail {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-smoke);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-caret {
+  color: var(--color-ash);
+}
+
+.record-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: var(--spacing-8) var(--spacing-16) var(--spacing-16) var(--spacing-48);
+  background: var(--color-eggshell);
+}
+
+/* Failures and empty result */
+
+.failures {
+  padding: var(--spacing-12) var(--spacing-16);
+  border-radius: var(--radius-card);
+  background: var(--color-warning-soft);
+}
+
+.failures-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-warning);
+}
+
+.failure {
+  margin-top: var(--spacing-4);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-graphite);
+}
+
+.nothing {
+  padding: var(--spacing-24) 0;
+  font-size: var(--text-body-sm);
+  line-height: 1.45;
+  color: var(--color-smoke);
+  text-align: center;
+}
+
+/* Sets expectations for the Stop button next to it: a cancel keeps what
+   has already been read. */
+
+.footer-note {
+  margin-right: auto;
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}

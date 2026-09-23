@@ -1,0 +1,294 @@
+<app-modal
+  title="Add anything"
+  [subtitle]="
+    step() === 'upload'
+      ? 'Drop in your bills, invoices or product photos — HomeOS reads them one by one.'
+      : ''
+  "
+  (closed)="close()"
+>
+  @switch (step()) {
+    @case ('upload') {
+      <app-photo-upload [multiple]="true" (picked)="onPhotos($event)" />
+
+      <div class="divider"><span>or</span></div>
+
+      <button type="button" class="btn btn-secondary btn-block" (click)="manual()">
+        Enter details manually
+      </button>
+    }
+
+    @case ('reading') {
+      <div class="reading">
+        <div class="reading-text">
+          <app-icon name="sparkle" [size]="18" />
+          <span>{{ status() }}</span>
+        </div>
+
+        @if (total() > 1) {
+          <div class="progress">
+            <div class="progress-fill" [style.width.%]="(done() / total()) * 100"></div>
+          </div>
+        }
+
+        <div class="thumbs">
+          @for (scan of scans; track scan.index) {
+            <img
+              class="thumb"
+              [class.pending]="scan.index >= done()"
+              [src]="scan.photo"
+              alt=""
+            />
+          }
+        </div>
+      </div>
+    }
+
+    @case ('review') {
+      @if (rows.length) {
+        <!-- Spell out why N bills became M records, so the count isn't a
+             surprise: each purchase yields the product, what it cost, and
+             the bill itself. -->
+        <section class="explainer">
+          <p class="explainer-head">
+            <strong>{{ purchaseCount }}</strong>
+            {{ purchaseCount === 1 ? 'purchase' : 'purchases' }} found in
+            {{ scans.length }} {{ scans.length === 1 ? 'photo' : 'photos' }} —
+            <strong>{{ rows.length }} records</strong> in total.
+          </p>
+          <p class="explainer-body">
+            Each purchase becomes up to three records: the
+            <strong>product</strong> you now own, the <strong>expense</strong> you paid,
+            and the <strong>document</strong> itself. Bills with nothing to own — like
+            electricity — have no product.
+          </p>
+          <p class="explainer-counts">
+            <span><app-icon name="box" [size]="14" /> {{ assetCount }} products</span>
+            <span><app-icon name="receipt" [size]="14" /> {{ expenseCount }} expenses</span>
+            <span><app-icon name="file-text" [size]="14" /> {{ documentCount }} documents</span>
+          </p>
+        </section>
+
+        <div class="summary-bar">
+          <span>{{ selectedCount }} of {{ rows.length }} selected</span>
+          <span class="bulk">
+            <button type="button" (click)="setAll(true)">Select all</button>
+            <button type="button" (click)="setAll(false)">Clear</button>
+          </span>
+        </div>
+
+        @for (scan of scans; track scan.index) {
+          @if (groupsFor(scan.index).length) {
+            <section class="scan-group">
+              <header class="scan-head">
+                <img class="scan-thumb" [src]="scan.photo" alt="" />
+                <div class="scan-meta">
+                  <p class="scan-kind">{{ scanLabel[scan.kind] }}</p>
+                  <p class="scan-summary">{{ scan.summary }}</p>
+                </div>
+              </header>
+
+              @for (group of groupsFor(scan.index); track group.key) {
+                <div class="purchase">
+                  <p class="purchase-label">
+                    {{ group.label }}
+                    <span class="purchase-count">
+                      {{ keptIn(group.key) }} of {{ rowsFor(group.key).length }}
+                    </span>
+                  </p>
+
+                  @for (row of rowsFor(group.key); track row.key) {
+                    <div class="record" [class.off]="!row.keep">
+                      <div class="record-head">
+                        <button
+                          type="button"
+                          class="check"
+                          [class.on]="row.keep"
+                          (click)="toggle(row)"
+                          [attr.aria-label]="row.keep ? 'Skip this record' : 'Include this record'"
+                        >
+                          @if (row.keep) {
+                            <app-icon name="check" [size]="12" />
+                          }
+                        </button>
+
+                        <button type="button" class="record-main" (click)="toggleOpen(row)">
+                          <app-icon [name]="rowIcon(row)" [size]="16" />
+                          <span class="record-kind">{{ kindLabel[row.kind] }}</span>
+                          <span class="record-body">
+                            <span class="record-title" appTruncated>{{ rowTitle(row) }}</span>
+                            <span class="record-detail" appTruncated>{{ rowDetail(row) }}</span>
+                          </span>
+                          <app-icon
+                            [name]="row.open ? 'chevron-down' : 'chevron-right'"
+                            [size]="16"
+                            class="record-caret"
+                          />
+                        </button>
+                      </div>
+
+                  @if (row.open) {
+                    <div class="record-edit">
+                      @if (row.asset; as a) {
+                        <div class="field">
+                          <label class="field-label">Name</label>
+                          <input class="input" [(ngModel)]="a.name" />
+                        </div>
+                        <div class="field-row">
+                          <div class="field">
+                            <label class="field-label">Category</label>
+                            <select
+                              class="select"
+                              [ngModel]="a.category"
+                              (ngModelChange)="setCategory(row, $event)"
+                            >
+                              @for (c of categories; track c) {
+                                <option [value]="c">{{ c }}</option>
+                              }
+                            </select>
+                          </div>
+                          <div class="field">
+                            <label class="field-label">Room</label>
+                            <select class="select" [(ngModel)]="a.roomId">
+                              @for (r of rooms(); track r.id) {
+                                <option [value]="r.id">{{ r.name }}</option>
+                              }
+                            </select>
+                          </div>
+                        </div>
+                        <div class="field-row">
+                          <div class="field">
+                            <label class="field-label">Price</label>
+                            <input class="input" type="number" [(ngModel)]="a.purchasePrice" />
+                          </div>
+                          <div class="field">
+                            <label class="field-label">Warranty until</label>
+                            <input class="input" type="date" [(ngModel)]="a.warrantyExpiry" />
+                          </div>
+                        </div>
+                      }
+
+                      @if (row.expense; as e) {
+                        <div class="field">
+                          <label class="field-label">What it was for</label>
+                          <input class="input" [(ngModel)]="e.title" />
+                        </div>
+                        <div class="field-row">
+                          <div class="field">
+                            <label class="field-label">Amount</label>
+                            <input class="input" type="number" [(ngModel)]="e.amount" />
+                          </div>
+                          <div class="field">
+                            <label class="field-label">Date</label>
+                            <input class="input" type="date" [(ngModel)]="e.date" />
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label class="field-label">Category</label>
+                          <select
+                            class="select"
+                            [ngModel]="e.category"
+                            (ngModelChange)="setExpenseCategory(row, $event)"
+                          >
+                            @for (c of expenseCategories; track c) {
+                              <option [value]="c">{{ c }}</option>
+                            }
+                          </select>
+                        </div>
+                      }
+
+                      @if (row.document; as d) {
+                        <div class="field">
+                          <label class="field-label">Title</label>
+                          <input class="input" [(ngModel)]="d.title" />
+                        </div>
+                        <div class="field">
+                          <label class="field-label">Type</label>
+                          <select
+                            class="select"
+                            [ngModel]="d.kind"
+                            (ngModelChange)="setDocumentKind(row, $event)"
+                          >
+                            @for (k of documentKinds; track k) {
+                              <option [value]="k">{{ k }}</option>
+                            }
+                          </select>
+                        </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                  }
+                </div>
+              }
+            </section>
+          }
+        }
+      }
+
+      @if (failedScans.length) {
+        <section class="failures">
+          <p class="failures-title">
+            <app-icon name="alert-triangle" [size]="14" />
+            {{ failedScans.length }}
+            {{ failedScans.length === 1 ? 'photo' : 'photos' }} couldn't be read
+          </p>
+          @for (scan of failedScans; track scan.index) {
+            <p class="failure">{{ scan.error }}</p>
+          }
+        </section>
+      }
+
+      @if (saveError()) {
+        <p class="save-error">
+          <app-icon name="alert-triangle" [size]="14" />
+          {{ saveError() }}
+        </p>
+      }
+
+      @if (!rows.length) {
+        <p class="nothing">
+          Nothing could be read from
+          {{ scans.length === 1 ? 'that photo' : 'those photos' }}. Try clearer images, or
+          enter the details manually.
+        </p>
+      }
+    }
+  }
+
+  <ng-container modalFooter>
+    @if (step() === 'reading') {
+      <span class="footer-note">
+        {{
+          done()
+            ? 'Anything already read will be kept.'
+            : 'Reading stops after the current photo.'
+        }}
+      </span>
+      <button type="button" class="btn btn-secondary" (click)="cancelReading()">
+        Stop reading
+      </button>
+    }
+
+    @if (step() === 'review') {
+      <button type="button" class="btn btn-ghost" (click)="restart()">Start over</button>
+      @if (rows.length) {
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="!selectedCount || saving()"
+          (click)="confirm()"
+        >
+          <app-icon name="check" [size]="16" />
+          {{
+            saving()
+              ? 'Adding…'
+              : 'Add ' + selectedCount + (selectedCount === 1 ? ' record' : ' records')
+          }}
+        </button>
+      } @else {
+        <button type="button" class="btn btn-primary" (click)="manual()">Enter manually</button>
+      }
+    }
+  </ng-container>
+</app-modal>

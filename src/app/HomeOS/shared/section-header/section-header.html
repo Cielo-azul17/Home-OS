@@ -1,0 +1,21 @@
+<div class="section-header">
+  <div class="title-row">
+    <h2>{{ title() }}</h2>
+    @if (badge() !== undefined) {
+      <span class="badge">{{ badge() }}</span>
+    }
+  </div>
+  @if (actionLabel()) {
+    @if (actionLink(); as link) {
+      <a class="action" [routerLink]="link">
+        {{ actionLabel() }}
+        <app-icon name="chevron-right" [size]="16" />
+      </a>
+    } @else {
+      <button type="button" class="action" (click)="action.emit()">
+        {{ actionLabel() }}
+        <app-icon name="chevron-right" [size]="16" />
+      </button>
+    }
+  }
+</div>

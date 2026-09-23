@@ -1,0 +1,23 @@
+<a class="room-card" [routerLink]="['/rooms', room().id]">
+  <div class="image-frame">
+    @if (room().image) {
+      <img [src]="room().image" [alt]="room().name" loading="lazy" />
+    } @else {
+      <!-- A room the user added without a photo — a calm tile, never a
+           broken image. -->
+      <div class="image-fallback">
+        <app-icon name="door" [size]="28" />
+      </div>
+    }
+  </div>
+  <div class="body">
+    <div class="text">
+      <div class="name" appTruncated>{{ room().name }}</div>
+      <div class="meta">
+        <app-icon name="box" [size]="14" />
+        {{ room().assetCount }} assets
+      </div>
+    </div>
+    <app-icon name="chevron-right" [size]="16" class="arrow" />
+  </div>
+</a>

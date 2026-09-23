@@ -1,0 +1,349 @@
+:host {
+  display: block;
+}
+
+.top-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--spacing-24);
+  margin-bottom: var(--spacing-24);
+  align-items: stretch;
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-card);
+  padding: var(--card-padding);
+}
+
+h2 {
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  margin-bottom: var(--spacing-16);
+}
+
+.muted {
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+}
+
+/* Spend card */
+
+.spend-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--card-padding);
+  background: var(--color-sage-soft);
+  border: 1px solid color-mix(in srgb, var(--color-sage) 18%, transparent);
+  border-radius: var(--radius-card);
+}
+
+/* Month navigation — the arrows sit level with the month they change. */
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-left: calc(var(--spacing-8) * -1);
+}
+
+.month-nav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-input);
+  color: var(--color-sage);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.month-nav button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-sage) 12%, transparent);
+}
+
+.month-nav button:disabled {
+  color: var(--color-ash);
+  cursor: not-allowed;
+}
+
+.month-label {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-sage);
+}
+
+.amount {
+  margin-top: var(--spacing-4);
+  font-size: var(--text-heading);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--color-charcoal);
+  line-height: 1.1;
+}
+
+.change {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-12);
+  font-size: var(--text-body-sm);
+  color: var(--color-warning);
+}
+
+.change.lower {
+  color: var(--color-success);
+}
+
+.sub {
+  margin-top: var(--spacing-8);
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}
+
+/* Breakdown — ring for proportion, legend for the numbers. */
+
+.breakdown-body {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-32);
+}
+
+.legend {
+  flex: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-8);
+  margin: 0 calc(var(--spacing-8) * -1);
+  border-radius: var(--radius-input);
+  transition: background 0.15s ease;
+}
+
+.legend-row:hover {
+  background: var(--color-stone-hover);
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+}
+
+.legend-label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-body-sm);
+  line-height: 1.45;
+  color: var(--color-graphite);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.legend-percent {
+  font-size: var(--text-caption);
+  color: var(--color-ash);
+  font-variant-numeric: tabular-nums;
+}
+
+.legend-value {
+  min-width: 76px;
+  text-align: right;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Expense list */
+
+.list-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-16);
+}
+
+.list-head h2 {
+  margin-bottom: 0;
+}
+
+.list-total {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-smoke);
+  font-variant-numeric: tabular-nums;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-16);
+  flex-wrap: wrap;
+}
+
+.filter {
+  width: auto;
+  min-width: 160px;
+}
+
+/* Search deliberately leaves the month behind, so it says so. */
+
+.scope-note {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-16);
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}
+
+.link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--text-caption);
+  color: var(--color-sage);
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-20);
+}
+
+.expense-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-12) 0;
+  border-bottom: 1px solid var(--color-soft-stone);
+}
+
+.row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.row:first-child {
+  padding-top: 0;
+}
+
+.row-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-title {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+}
+
+.row-meta {
+  font-size: var(--text-caption);
+  color: var(--color-smoke);
+}
+
+.row-amount {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  font-variant-numeric: tabular-nums;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-input);
+  color: var(--color-ash);
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.row:hover .action,
+.action:focus-visible {
+  opacity: 1;
+}
+
+.action:hover {
+  background: var(--color-stone);
+  color: var(--color-charcoal);
+}
+
+.action.danger:hover {
+  background: var(--color-error-soft);
+  color: var(--color-error);
+}
+
+@media (hover: none) {
+  .action {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1100px) {
+  .top-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Stack rather than shrink — a ring under 160px loses its thin slices. */
+  .breakdown-body {
+    flex-direction: column;
+    gap: var(--spacing-24);
+  }
+
+  .legend {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .action {
+    opacity: 1;
+  }
+
+  app-smart-search {
+    flex-basis: 100%;
+  }
+
+  .filter {
+    flex: 1;
+  }
+}

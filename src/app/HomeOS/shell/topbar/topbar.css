@@ -1,0 +1,126 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  padding: var(--spacing-20) var(--spacing-32);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-eggshell);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.menu-anchor {
+  position: relative;
+}
+
+.add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  height: 40px;
+  padding: 0 var(--spacing-20);
+  border: none;
+  border-radius: var(--radius-button);
+  background: var(--color-charcoal);
+  color: var(--color-surface);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+}
+
+.add-button:hover {
+  background: var(--color-graphite);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + var(--spacing-8));
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: var(--spacing-8);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  box-shadow: var(--shadow-subtle);
+  z-index: 20;
+}
+
+.dropdown-item {
+  text-align: left;
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-input);
+  background: none;
+  border: none;
+  font-size: var(--text-body-sm);
+  color: var(--color-charcoal);
+}
+
+.dropdown-item:hover {
+  background: var(--color-stone-hover);
+}
+
+.icon-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  color: var(--color-graphite);
+}
+
+.icon-button:hover {
+  background: var(--color-stone-hover);
+}
+
+/* A count rather than a bare dot — "3 things" is a different decision from
+   "something". Caps at 9+ so the pill never widens the button. */
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-error);
+  border: 2px solid var(--color-eggshell);
+  color: var(--color-surface);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    padding: var(--spacing-16);
+  }
+
+  .add-button span {
+    display: none;
+  }
+
+  .add-button {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+    border-radius: var(--radius-full);
+  }
+}

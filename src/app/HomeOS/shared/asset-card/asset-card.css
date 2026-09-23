@@ -1,0 +1,92 @@
+/* Design system, Asset Card: product image -> asset name -> room/category
+   -> key status. Every slot is a fixed size so all cards are identical
+   regardless of image shape, name length, or whether a badge is present. */
+
+:host {
+  display: block;
+}
+
+.asset-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  background: var(--color-surface);
+  border: 1px solid var(--color-soft-stone);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.asset-card:hover {
+  border-color: var(--color-ash);
+  box-shadow: var(--shadow-subtle);
+}
+
+/* Fixed photo band — the image fills it edge to edge and is clipped at the
+   separator, so it never encroaches on the title area below. */
+
+.media {
+  height: 168px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-soft-stone);
+  background: var(--color-stone);
+}
+
+.media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.media-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-ash);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--spacing-16);
+}
+
+/* Two lines always — short names reserve the second line so the rows
+   below never shift. */
+
+.name {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-charcoal);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(2 * 1.45em);
+}
+
+.meta {
+  margin-top: var(--spacing-4);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-smoke);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status {
+  display: flex;
+  align-items: flex-end;
+  min-height: 22px;
+  margin-top: auto;
+  padding-top: var(--spacing-12);
+}

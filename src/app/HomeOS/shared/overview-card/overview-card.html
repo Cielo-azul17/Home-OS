@@ -1,0 +1,19 @@
+<div class="overview-card">
+  <div class="icon-badge">
+    <app-icon [name]="stat().icon" [size]="18" />
+  </div>
+  <div class="text">
+    <div class="value">{{ stat().value }}</div>
+    <div class="label" appTruncated>{{ stat().label }}</div>
+  </div>
+  @if (stat().trend.text) {
+    <span class="trend" [class]="stat().trend.tone">
+      @if (stat().trend.direction === 'up') {
+        <app-icon name="arrow-up" [size]="12" />
+      } @else if (stat().trend.direction === 'down') {
+        <app-icon name="arrow-down" [size]="12" />
+      }
+      {{ stat().trend.text }}
+    </span>
+  }
+</div>

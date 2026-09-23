@@ -1,0 +1,93 @@
+<div class="page-container">
+  <app-page-header
+    title="Reminders"
+    [subtitle]="
+      loading() ? 'Loading…' : total() + ' open · services, bills and maintenance'
+    "
+  >
+    <button type="button" class="btn btn-primary" (click)="addReminder()">
+      <app-icon name="plus" [size]="16" />
+      New reminder
+    </button>
+  </app-page-header>
+
+  @if (!loading() && !groups().length) {
+    <div class="panel">
+      <app-empty-state
+        icon="bell"
+        title="Nothing to remember yet"
+        message="Create a reminder for a service, a bill or anything your home needs on a schedule."
+        actionLabel="Create a reminder"
+        (action)="addReminder()"
+      />
+    </div>
+  }
+
+  @for (group of groups(); track group.state) {
+    <section class="group">
+      <div class="group-head">
+        <h2>{{ group.label }}</h2>
+        <span class="count">{{ group.items.length }}</span>
+      </div>
+
+      <div class="panel list">
+        @for (reminder of group.items; track reminder.id) {
+          <div class="row" [class.done]="reminder.completed">
+            <div class="date" [class.muted]="reminder.completed">
+              <span class="day">{{ dayMonth(reminder.dueDate).day }}</span>
+              <span class="month">{{ dayMonth(reminder.dueDate).month }}</span>
+            </div>
+
+            <button
+              type="button"
+              class="check"
+              [class.checked]="reminder.completed"
+              (click)="toggle(reminder.id)"
+              [attr.aria-label]="reminder.completed ? 'Mark as not done' : 'Mark as done'"
+            >
+              @if (reminder.completed) {
+                <app-icon name="check" [size]="12" />
+              }
+            </button>
+
+            <div class="body">
+              <p class="title">{{ reminder.title }}</p>
+              <p class="meta">
+                {{ assetName(reminder.assetId) }} · {{ relative(reminder.dueDate) }}
+                @if (reminder.repeat !== 'none') {
+                  <span> · repeats {{ reminder.repeat }}</span>
+                }
+              </p>
+              @if (reminder.notes) {
+                <p class="notes">{{ reminder.notes }}</p>
+              }
+            </div>
+
+            <app-status-badge
+              [label]="badge(reminder).label"
+              [tone]="badge(reminder).tone"
+            />
+
+            <button
+              type="button"
+              class="remove"
+              (click)="edit(reminder.id)"
+              [attr.aria-label]="'Edit ' + reminder.title"
+            >
+              <app-icon name="edit" [size]="16" />
+            </button>
+
+            <button
+              type="button"
+              class="remove"
+              (click)="remove(reminder.id)"
+              aria-label="Delete reminder"
+            >
+              <app-icon name="trash" [size]="16" />
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>
