@@ -12,6 +12,8 @@
 </section>
 
 <div class="page-container dashboard-body">
+  <app-alerts-banner />
+
   <div class="row-3col stats-row">
     @for (stat of overviewStats(); track stat.label) {
       <app-overview-card [stat]="stat" />

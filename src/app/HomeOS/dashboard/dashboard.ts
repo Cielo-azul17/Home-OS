@@ -8,6 +8,7 @@ import { ReminderItemComponent } from '../shared/reminder-item/reminder-item';
 import { AiAddCard } from '../shared/ai-add-card/ai-add-card';
 import { EmptyState } from '../shared/empty-state/empty-state';
 import { Topbar } from '../shell/topbar/topbar';
+import { AlertsBanner } from '../shared/alerts-banner/alerts-banner';
 import { HomeStore } from '../core/home-store';
 import { AddFlowService } from '../add/add-flow.service';
 
@@ -23,6 +24,7 @@ import { AddFlowService } from '../add/add-flow.service';
     AiAddCard,
     EmptyState,
     Topbar,
+    AlertsBanner,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',

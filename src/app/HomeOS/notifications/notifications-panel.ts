@@ -4,6 +4,7 @@ import { Icon } from '../shared/icon/icon';
 import { EmptyState } from '../shared/empty-state/empty-state';
 import { Truncated } from '../shared/tooltip/truncated.directive';
 import { NotificationsService } from '../core/notifications.service';
+import { AlertsService } from '../core/alerts.service';
 import { ScrollLock } from '../core/scroll-lock.service';
 import { HomeNotification } from '../core/models';
 
@@ -33,6 +34,7 @@ interface NotificationSection {
 })
 export class NotificationsPanel implements OnDestroy {
   private notifications = inject(NotificationsService);
+  private alerts = inject(AlertsService);
   private scrollLock = inject(ScrollLock);
   private router = inject(Router);
 
@@ -70,18 +72,31 @@ export class NotificationsPanel implements OnDestroy {
     }
   });
 
-  /* Two sections rather than date buckets: what the home needs from you is a
-     different kind of thing from what it's telling you. */
-  readonly sections = computed<NotificationSection[]>(() =>
-    [
+  readonly sections = computed<NotificationSection[]>(() => {
+    const alerts = this.alerts.alerts();
+    const alertItems = alerts.map(a => ({
+      id: a.id,
+      title: a.title,
+      message: a.message,
+      read: false,
+      group: 'action' as const,
+      timestamp: new Date(),
+      link: undefined,
+    })) as unknown as HomeNotification[];
+
+    return [
       {
         key: 'action',
-        label: 'Needs action',
-        items: this.visible().filter((n) => n.group === 'action'),
+        label: 'Alerts & Action items',
+        items: [...alertItems, this.visible().filter((n) => n.group === 'action')].flat(),
       },
-      { key: 'update', label: 'Updates', items: this.visible().filter((n) => n.group === 'update') },
-    ].filter((s) => s.items.length > 0),
-  );
+      {
+        key: 'update',
+        label: 'Updates',
+        items: this.visible().filter((n) => n.group === 'update')
+      },
+    ].filter((s) => s.items.length > 0);
+  });
 
   readonly isEmpty = computed(() => this.sections().length === 0);
 
