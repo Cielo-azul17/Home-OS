@@ -3,23 +3,28 @@ import { CommonModule } from '@angular/common';
 import { Icon } from '../shared/icon/icon';
 import { OnboardingService } from '../core/onboarding.service';
 import { HomeStore } from '../core/home-store';
-import { AddFlowService } from '../add/add-flow.service';
+import { OnboardingUpload } from './onboarding-upload';
 
 @Component({
   selector: 'app-onboarding-wizard',
-  imports: [CommonModule, Icon],
+  imports: [CommonModule, Icon, OnboardingUpload],
   template: `
-    <div class="onboarding-overlay">
-      <div class="onboarding-modal">
-        @switch (onboarding.step()) {
+    @if (showUploadModal()) {
+      <app-onboarding-upload (onClose)="closeUploadModal()" />
+    }
+
+    @if (!showUploadModal()) {
+      <div class="onboarding-overlay">
+        <div class="onboarding-modal">
+          @switch (onboarding.step()) {
           @case ('welcome') {
             <div class="step welcome-step">
               <app-icon name="sparkle" [size]="48" />
               <h1>Welcome to HomeOS</h1>
               <p>Your AI-powered home management assistant.</p>
-              <p>Upload a bill or warranty card, and let AI organize your home.</p>
-              <button class="btn btn-primary" (click)="openSmartAdd()">
-                📸 Upload Your First Bill
+              <p>Organize your home with AI, track warranties, and stay on top of maintenance.</p>
+              <button class="btn btn-primary" (click)="nextStep()">
+                Getting Started
               </button>
               <p class="skip-text">
                 <button type="button" class="btn-link" (click)="skip()">Or skip for now</button>
@@ -52,14 +57,20 @@ import { AddFlowService } from '../add/add-flow.service';
                 </div>
               </div>
 
-              <button class="btn btn-primary" (click)="completeOnboarding()">
-                Explore Dashboard
-              </button>
+              <div class="button-group">
+                <button class="btn btn-primary" (click)="uploadMore()">
+                  📸 Upload More Bills
+                </button>
+                <button class="btn btn-secondary" (click)="completeOnboarding()">
+                  Explore Dashboard
+                </button>
+              </div>
             </div>
           }
         }
       </div>
     </div>
+    }
   `,
   styles: [`
     .onboarding-overlay {
@@ -184,34 +195,40 @@ import { AddFlowService } from '../add/add-flow.service';
     .btn-primary:hover {
       background: #3a4350;
     }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
   `]
 })
 export class OnboardingWizard {
   onboarding = inject(OnboardingService);
   private store = inject(HomeStore);
-  private flow = inject(AddFlowService);
 
+  showUploadModal = signal(false);
   createdCount = signal(0);
   private beforeCount = 0;
 
-  constructor() {
-    // Watch for when Smart Add modal closes
-    effect(() => {
-      const isActive = this.flow.active();
+  constructor() {}
 
-      // If modal closes after upload started
-      if (!isActive && this.beforeCount > 0) {
-        // Count assets created
-        const afterCount = this.store.assets().length;
-        this.createdCount.set(Math.max(0, afterCount - this.beforeCount));
-        this.beforeCount = 0;
+  nextStep() {
+    // Record count before upload
+    this.beforeCount = this.store.assets().length;
+    this.createdCount.set(0);
 
-        // Move to results
-        setTimeout(() => {
-          this.onboarding.nextStep('explore');
-        }, 300);
-      }
-    });
+    // Open custom onboarding upload modal
+    this.showUploadModal.set(true);
   }
 
   openSmartAdd() {
@@ -219,8 +236,35 @@ export class OnboardingWizard {
     this.beforeCount = this.store.assets().length;
     this.createdCount.set(0);
 
-    // Open Smart Add modal - user uploads, AI processes, modal closes
-    this.flow.open('Asset');
+    // Open custom onboarding upload modal
+    this.showUploadModal.set(true);
+  }
+
+  uploadMore() {
+    // Record count before upload
+    this.beforeCount = this.store.assets().length;
+    this.createdCount.set(0);
+
+    // Open custom onboarding upload modal again
+    this.showUploadModal.set(true);
+  }
+
+  closeUploadModal() {
+    this.showUploadModal.set(false);
+
+    // Count newly created assets
+    const afterCount = this.store.assets().length;
+    const newCount = Math.max(0, afterCount - this.beforeCount);
+    if (newCount > 0) {
+      this.createdCount.set(this.createdCount() + newCount);
+    }
+
+    // If this was first upload (in welcome step), show results
+    if (this.onboarding.step() === 'welcome') {
+      setTimeout(() => {
+        this.onboarding.nextStep('explore');
+      }, 300);
+    }
   }
 
   skip() {
