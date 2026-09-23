@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Redirecting...</title>
-    <script>
-      const path = window.location.pathname.replace('/Home-OS/', '');
-      window.location.replace('/Home-OS/index.html?redirect=' + encodeURIComponent(path));
-    </script>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <title>HomeOS</title>
+  <script>
+    const segments = window.location.pathname.split('/').filter(s => s && s !== 'Home-OS');
+    if (segments.length > 0) {
+      window.location.replace('/Home-OS/#' + segments.join('/'));
+    } else {
+      window.location.replace('/Home-OS/');
+    }
+  </script>
+</head>
+<body></body>
 </html>
