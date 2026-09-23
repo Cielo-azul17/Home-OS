@@ -50,6 +50,6 @@ export class Shell {
      HomeOS runs on mock data and there's nothing to authenticate against.
      `ready` keeps the door from flashing before a stored session loads. */
   readonly needsAuth = computed(
-    () => this.supabase.configured && this.supabase.ready() && !this.supabase.user(),
+    () => false, // TEMP: Skip auth for testing
   );
 }
