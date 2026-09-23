@@ -12,8 +12,8 @@
    yet. */
 
 export const SUPABASE_CONFIG = {
-  url: '',
-  anonKey: '',
+  url: 'https://oeivesochocygygfxrsi.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9laXZlc29jaG9jeWd5Z2Z4cnNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxODQzMDcsImV4cCI6MjEwNTc2MDMwN30.2fwAabLnXy77cHJiLS_Od6nyYIFv2hJd9nUSeZpXWA4',
 };
 
 export const isSupabaseConfigured = (): boolean =>
