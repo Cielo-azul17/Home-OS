@@ -5,6 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:github": "ng build --base-href=/Home-OS/",
+    "deploy": "npm run build:github && npx gh-pages -d dist/my-app/browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -25,6 +27,7 @@
     "@angular/build": "^22.1.8",
     "@angular/cli": "^22.1.8",
     "@angular/compiler-cli": "^22.1.0",
+    "gh-pages": "^6.3.0",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
