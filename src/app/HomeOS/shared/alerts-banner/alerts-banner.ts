@@ -7,16 +7,16 @@ import { AlertsService } from '../../core/alerts.service';
   selector: 'app-alerts-banner',
   imports: [CommonModule, Icon],
   template: `
-    @if (alerts.criticalCount() > 0; as count) {
-      <div class="alerts-banner" [class]="'severity-' + topAlert?.severity">
+    @if (alerts.criticalCount() > 0 && topAlert) {
+      <div class="alerts-banner" [class]="'severity-' + topAlert.severity">
         <div class="alerts-content">
-          <app-icon [name]="topAlert?.icon || 'alert-triangle'" [size]="20" />
+          <app-icon [name]="getAlertIcon()" [size]="20" />
           <div class="alert-text">
-            <strong>{{ topAlert?.title }}</strong>
-            <p>{{ topAlert?.message }}</p>
+            <strong>{{ topAlert.title }}</strong>
+            <p>{{ topAlert.message }}</p>
           </div>
-          @if (count > 1) {
-            <span class="badge">+{{ count - 1 }}</span>
+          @if (alerts.criticalCount() > 1) {
+            <span class="badge">+{{ alerts.criticalCount() - 1 }}</span>
           }
         </div>
       </div>
@@ -81,5 +81,14 @@ export class AlertsBanner {
   get topAlert() {
     const alerts = this.alerts.alerts();
     return alerts.find(a => a.severity === 'critical') || alerts[0];
+  }
+
+  getAlertIcon() {
+    const iconMap: Record<string, string> = {
+      'warranty': 'shield',
+      'maintenance': 'wrench',
+      'budget': 'wallet',
+    };
+    return (iconMap[this.topAlert?.type] || 'alert-triangle') as any;
   }
 }

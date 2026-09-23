@@ -51,4 +51,8 @@
   <app-document-viewer />
 }
 
+@if (onboarding.shouldShowOnboarding()) {
+  <app-onboarding-wizard />
+}
+
 }

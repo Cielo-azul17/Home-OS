@@ -12,6 +12,8 @@ import { NotificationsService } from '../core/notifications.service';
 import { HelpPanel } from '../help/help-panel';
 import { HelpService } from '../help/help.service';
 import { SignIn } from '../auth/sign-in';
+import { OnboardingWizard } from '../onboarding/onboarding-wizard';
+import { OnboardingService } from '../core/onboarding.service';
 import { Supabase } from '../core/backend/supabase-client';
 import { HomeStore } from '../core/home-store';
 
@@ -29,6 +31,7 @@ import { HomeStore } from '../core/home-store';
     NotificationsPanel,
     HelpPanel,
     SignIn,
+    OnboardingWizard,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.css',
@@ -37,6 +40,7 @@ export class Shell {
   documentViewer = inject(DocumentViewerService);
   notifications = inject(NotificationsService);
   help = inject(HelpService);
+  onboarding = inject(OnboardingService);
   private supabase = inject(Supabase);
   store = inject(HomeStore);
 
