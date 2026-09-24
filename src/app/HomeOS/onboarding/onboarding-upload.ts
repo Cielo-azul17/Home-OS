@@ -5,11 +5,13 @@ import { Icon } from '../shared/icon/icon';
 import { HomeStore } from '../core/home-store';
 import { Supabase } from '../core/backend/supabase-client';
 import { AiService } from '../core/ai.service';
+import { ASSET_CATEGORIES, EXPENSE_CATEGORIES, DOCUMENT_KINDS } from '../core/models';
 
 interface ExtractedItem {
   key: string;
   kind: 'asset' | 'expense' | 'document';
   keep: boolean;
+  open: boolean;
   data: any;
 }
 
@@ -123,24 +125,127 @@ interface ProcessingState {
                     } @else {
                       <div class="items-list">
                         @for (item of extractedItems(); track item.key) {
-                          <div class="item-row" [class.unchecked]="!item.keep">
-                            <input type="checkbox" [checked]="item.keep" (change)="toggleItem(item.key)" />
-                            <div class="item-info">
-                              @if (item.kind === 'asset') {
-                                <span class="item-type">Product</span>
-                                <span class="item-title">{{ item.data.name }}</span>
-                                @if (item.data.brand) { <span class="item-detail">{{ item.data.brand }}</span> }
-                                <span class="item-detail">{{ item.data.category }}</span>
-                              } @else if (item.kind === 'expense') {
-                                <span class="item-type">Expense</span>
-                                <span class="item-title">{{ item.data.title }}</span>
-                                <span class="item-detail">₹{{ item.data.amount }}</span>
-                              } @else if (item.kind === 'document') {
-                                <span class="item-type">Document</span>
-                                <span class="item-title">{{ item.data.title }}</span>
-                                <span class="item-detail">{{ item.data.kind }}</span>
-                              }
+                          <div class="item-record" [class.off]="!item.keep">
+                            <div class="record-head">
+                              <button
+                                type="button"
+                                class="check"
+                                [class.on]="item.keep"
+                                (click)="toggleItem(item.key)"
+                              >
+                                @if (item.keep) {
+                                  <app-icon name="check" [size]="12" />
+                                }
+                              </button>
+
+                              <button type="button" class="record-main" (click)="toggleOpen(item.key)">
+                                @if (item.kind === 'asset') {
+                                  <app-icon name="box" [size]="16" />
+                                  <span class="record-kind">Product</span>
+                                  <span class="record-title">{{ item.data.name }}</span>
+                                  @if (item.data.brand) { <span class="record-detail">{{ item.data.brand }}</span> }
+                                } @else if (item.kind === 'expense') {
+                                  <app-icon name="receipt" [size]="16" />
+                                  <span class="record-kind">Expense</span>
+                                  <span class="record-title">{{ item.data.title }}</span>
+                                  <span class="record-detail">₹{{ item.data.amount }}</span>
+                                } @else if (item.kind === 'document') {
+                                  <app-icon name="file-text" [size]="16" />
+                                  <span class="record-kind">Document</span>
+                                  <span class="record-title">{{ item.data.title }}</span>
+                                }
+                                <app-icon [name]="item.open ? 'chevron-down' : 'chevron-right'" [size]="16" class="caret" />
+                              </button>
                             </div>
+
+                            @if (item.open) {
+                              <div class="record-edit">
+                                @if (item.kind === 'asset') {
+                                  <div class="field">
+                                    <label class="field-label">Name</label>
+                                    <input class="input" [(ngModel)]="item.data.name" />
+                                  </div>
+                                  <div class="field-row">
+                                    <div class="field">
+                                      <label class="field-label">Brand</label>
+                                      <input class="input" [(ngModel)]="item.data.brand" />
+                                    </div>
+                                    <div class="field">
+                                      <label class="field-label">Category</label>
+                                      <select class="select" [(ngModel)]="item.data.category">
+                                        @for (cat of assetCategories; track cat) {
+                                          <option [value]="cat">{{ cat }}</option>
+                                        }
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div class="field">
+                                    <label class="field-label">Room</label>
+                                    <select class="select" [(ngModel)]="item.data.roomId">
+                                      @for (room of rooms(); track room.id) {
+                                        <option [value]="room.id">{{ room.name }}</option>
+                                      }
+                                    </select>
+                                  </div>
+                                  <div class="field-row">
+                                    <div class="field">
+                                      <label class="field-label">Purchase Date</label>
+                                      <input class="input" type="date" [(ngModel)]="item.data.purchaseDate" />
+                                    </div>
+                                    <div class="field">
+                                      <label class="field-label">Price</label>
+                                      <input class="input" type="number" [(ngModel)]="item.data.purchasePrice" />
+                                    </div>
+                                  </div>
+                                  <div class="field-row">
+                                    <div class="field">
+                                      <label class="field-label">Warranty Expiry</label>
+                                      <input class="input" type="date" [(ngModel)]="item.data.warrantyExpiry" />
+                                    </div>
+                                    <div class="field">
+                                      <label class="field-label">Serial Number</label>
+                                      <input class="input" [(ngModel)]="item.data.serialNumber" />
+                                    </div>
+                                  </div>
+                                } @else if (item.kind === 'expense') {
+                                  <div class="field">
+                                    <label class="field-label">Title</label>
+                                    <input class="input" [(ngModel)]="item.data.title" />
+                                  </div>
+                                  <div class="field-row">
+                                    <div class="field">
+                                      <label class="field-label">Amount (₹)</label>
+                                      <input class="input" type="number" [(ngModel)]="item.data.amount" />
+                                    </div>
+                                    <div class="field">
+                                      <label class="field-label">Date</label>
+                                      <input class="input" type="date" [(ngModel)]="item.data.date" />
+                                    </div>
+                                  </div>
+                                  <div class="field">
+                                    <label class="field-label">Category</label>
+                                    <select class="select" [(ngModel)]="item.data.category">
+                                      @for (cat of expenseCategories; track cat) {
+                                        <option [value]="cat">{{ cat }}</option>
+                                      }
+                                    </select>
+                                  </div>
+                                } @else if (item.kind === 'document') {
+                                  <div class="field">
+                                    <label class="field-label">Title</label>
+                                    <input class="input" [(ngModel)]="item.data.title" />
+                                  </div>
+                                  <div class="field">
+                                    <label class="field-label">Type</label>
+                                    <select class="select" [(ngModel)]="item.data.kind">
+                                      @for (kind of documentKinds; track kind) {
+                                        <option [value]="kind">{{ kind }}</option>
+                                      }
+                                    </select>
+                                  </div>
+                                }
+                              </div>
+                            }
                           </div>
                         }
                       </div>
@@ -627,67 +732,151 @@ interface ProcessingState {
       border-radius: 8px;
       overflow-y: auto;
       margin-bottom: 16px;
-      max-height: 350px;
-    }
-
-    .item-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 12px;
-      border-bottom: 1px solid #f3f4f6;
+      max-height: 450px;
       background: white;
     }
 
-    .item-row:last-child {
+    .item-record {
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .item-record:last-child {
       border-bottom: none;
     }
 
-    .item-row.unchecked {
+    .item-record.off {
       opacity: 0.6;
       background: #fafafa;
     }
 
-    .item-row input {
-      margin-top: 3px;
+    .record-head {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .check {
+      width: 40px;
+      border: none;
+      background: none;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #d1d5db;
+      flex-shrink: 0;
+      border-right: 1px solid #f3f4f6;
+      transition: all 0.2s;
+    }
+
+    .check:hover {
+      background: #f9fafb;
+      color: #9ca3af;
+    }
+
+    .check.on {
+      color: #4b5563;
+      background: #f0f4ff;
+    }
+
+    .record-main {
+      flex: 1;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: inherit;
+      text-align: left;
+      transition: background 0.2s;
+    }
+
+    .record-main:hover {
+      background: #f9fafb;
+    }
+
+    .record-main app-icon:first-child {
+      color: #4b5563;
       flex-shrink: 0;
     }
 
-    .item-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-
-    .item-type {
-      font-size: 11px;
+    .record-kind {
+      font-size: 12px;
       font-weight: 600;
       color: #fff;
       background: #4b5563;
-      padding: 2px 6px;
+      padding: 2px 8px;
       border-radius: 3px;
-      width: fit-content;
+      flex-shrink: 0;
     }
 
-    .item-title {
-      font-size: 13px;
+    .record-title {
+      font-size: 14px;
       font-weight: 500;
       color: #1f2937;
+      flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .item-detail {
-      font-size: 12px;
+    .record-detail {
+      font-size: 13px;
       color: #666;
-      padding: 2px 6px;
-      background: #f3f4f6;
-      border-radius: 3px;
-      width: fit-content;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .caret {
+      color: #9ca3af;
+      flex-shrink: 0;
+    }
+
+    .record-edit {
+      padding: 16px;
+      background: #f9fafb;
+      border-top: 1px solid #f3f4f6;
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input,
+    .select {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .input:focus,
+    .select:focus {
+      outline: none;
+      border-color: #4b5563;
+      box-shadow: 0 0 0 3px rgba(75, 85, 99, 0.1);
     }
 
     .review-actions {
@@ -759,6 +948,12 @@ export class OnboardingUpload {
   roomName = '';
   editingId: string | null = null;
 
+  // For edit forms
+  assetCategories = ASSET_CATEGORIES;
+  expenseCategories = EXPENSE_CATEGORIES;
+  documentKinds = DOCUMENT_KINDS;
+  rooms = this.store.rooms;
+
   processingState = signal<ProcessingState>({ totalBills: 0, currentBill: 0, startTime: 0, elapsedSeconds: 0 });
 
   private abortController: AbortController | null = null;
@@ -826,6 +1021,7 @@ export class OnboardingUpload {
                 key: `asset-${i}-${gi}`,
                 kind: 'asset',
                 keep: true,
+                open: false,
                 data: { name: a.name, brand: a.brand ?? '', category: a.category, roomId, purchaseDate: a.purchaseDate ?? '', purchasePrice: a.purchasePrice, warrantyExpiry: a.warrantyExpiry ?? '', serialNumber: a.serialNumber ?? '' }
               }]);
             }
@@ -835,6 +1031,7 @@ export class OnboardingUpload {
                 key: `expense-${i}-${gi}`,
                 kind: 'expense',
                 keep: true,
+                open: false,
                 data: { title: e.title, amount: e.amount, date: e.date, category: e.category }
               }]);
             }
@@ -844,6 +1041,7 @@ export class OnboardingUpload {
                 key: `doc-${i}-${gi}`,
                 kind: 'document',
                 keep: true,
+                open: false,
                 data: { title: d.title, kind: d.kind, fileName: d.fileName, sizeLabel: d.sizeLabel ?? '' }
               }]);
             }
@@ -885,6 +1083,12 @@ export class OnboardingUpload {
   toggleItem(key: string) {
     this.extractedItems.update(items =>
       items.map(item => item.key === key ? { ...item, keep: !item.keep } : item)
+    );
+  }
+
+  toggleOpen(key: string) {
+    this.extractedItems.update(items =>
+      items.map(item => item.key === key ? { ...item, open: !item.open } : item)
     );
   }
 
