@@ -11,7 +11,7 @@ import { friendlyError } from '../core/errors';
   template: `
     <div class="add-room-step">
       <h2>Let's Organize Your Home</h2>
-      <p>Create rooms to organize your assets and track maintenance by location.</p>
+      <p>Add rooms to organize your assets by location. You can add more anytime.</p>
 
       <div class="room-form">
         <label>Room Name</label>
@@ -25,18 +25,18 @@ import { friendlyError } from '../core/errors';
             [disabled]="saving()"
           />
           <button
-            class="btn btn-primary"
+            class="btn btn-add"
             (click)="addRoom()"
             [disabled]="!roomName().trim() || saving()"
           >
-            {{ saving() ? 'Adding...' : 'Add Room' }}
+            {{ saving() ? '+' : '+' }} {{ saving() ? '' : 'Add' }}
           </button>
         </div>
       </div>
 
       @if (store.rooms().length > 0) {
         <div class="rooms-list">
-          <label>Your Rooms</label>
+          <label>{{ store.rooms().length }} room{{ store.rooms().length > 1 ? 's' : '' }} added</label>
           <div class="rooms">
             @for (room of store.rooms(); track room.id) {
               <div class="room-chip">{{ room.name }}</div>
@@ -57,13 +57,9 @@ import { friendlyError } from '../core/errors';
           (click)="proceed()"
           [disabled]="store.rooms().length === 0"
         >
-          Continue
+          {{ store.rooms().length === 0 ? 'Add a room to continue' : 'Continue to upload bills' }}
         </button>
       </div>
-
-      @if (store.rooms().length === 0) {
-        <p class="hint">Create at least one room to continue</p>
-      }
     </div>
   `,
   styles: [`
@@ -189,11 +185,16 @@ import { friendlyError } from '../core/errors';
       background: #d1d5db;
     }
 
-    .hint {
-      text-align: center;
-      font-size: 12px;
-      color: #999;
-      margin: -12px 0 0 0;
+    .btn-add {
+      background: #f0f0f0;
+      color: #4b5563;
+      padding: 10px 12px;
+      min-width: auto;
+      flex-shrink: 0;
+    }
+
+    .btn-add:hover:not(:disabled) {
+      background: #e0e0e0;
     }
   `]
 })
