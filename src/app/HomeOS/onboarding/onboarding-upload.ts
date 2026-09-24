@@ -418,7 +418,8 @@ interface ProcessingState {
       max-width: 300px;
       font-size: 13px;
       color: #666;
-      margin-top: 12px;
+      margin-top: 20px;
+      margin-bottom: 12px;
     }
 
     .bill-counter {
@@ -436,7 +437,7 @@ interface ProcessingState {
       background: #e5e7eb;
       border-radius: 2px;
       overflow: hidden;
-      margin-top: 8px;
+      margin-bottom: 24px;
     }
 
     .progress-fill {
