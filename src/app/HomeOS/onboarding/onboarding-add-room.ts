@@ -5,6 +5,8 @@ import { HomeStore } from '../core/home-store';
 import { ToastService } from '../shared/toast/toast';
 import { friendlyError } from '../core/errors';
 
+const SUGGESTED_ROOMS = ['Living Room', 'Bedroom 1', 'Kitchen', 'Study'];
+
 @Component({
   selector: 'app-onboarding-add-room',
   imports: [CommonModule, FormsModule],
@@ -31,6 +33,22 @@ import { friendlyError } from '../core/errors';
           >
             {{ saving() ? '+' : '+' }} {{ saving() ? '' : 'Add' }}
           </button>
+        </div>
+
+        <div class="suggestions">
+          <label>Quick Add</label>
+          <div class="suggestion-buttons">
+            @for (room of suggestedRooms; track room) {
+              <button
+                type="button"
+                class="btn-suggestion"
+                (click)="addSuggestedRoom(room)"
+                [disabled]="saving()"
+              >
+                + {{ room }}
+              </button>
+            }
+          </div>
         </div>
       </div>
 
@@ -87,7 +105,7 @@ import { friendlyError } from '../core/errors';
     .room-form {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 16px;
     }
 
     label {
@@ -96,6 +114,43 @@ import { friendlyError } from '../core/errors';
       color: #333;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .suggestion-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-suggestion {
+      padding: 10px 12px;
+      background: #f0f0f0;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-suggestion:hover:not(:disabled) {
+      background: #e0e0e0;
+      border-color: #4b5563;
+    }
+
+    .btn-suggestion:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .input-group {
@@ -207,6 +262,7 @@ export class OnboardingAddRoom {
 
   roomName = signal('');
   saving = signal(false);
+  suggestedRooms = SUGGESTED_ROOMS;
 
   async addRoom(): Promise<void> {
     const name = this.roomName().trim();
@@ -216,6 +272,17 @@ export class OnboardingAddRoom {
     try {
       await this.store.addRoom(name);
       this.roomName.set('');
+    } catch (err) {
+      this.toasts.error(friendlyError(err, "Couldn't create room."));
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  async addSuggestedRoom(name: string): Promise<void> {
+    this.saving.set(true);
+    try {
+      await this.store.addRoom(name);
     } catch (err) {
       this.toasts.error(friendlyError(err, "Couldn't create room."));
     } finally {
