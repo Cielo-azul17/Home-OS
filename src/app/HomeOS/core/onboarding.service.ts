@@ -14,11 +14,8 @@ export class OnboardingService {
   readonly completed = computed(() => this.isCompleted());
 
   readonly shouldShowOnboarding = computed(() => {
-    const rooms = this.store.rooms();
-    const assets = this.store.assets();
-
-    // Show if no rooms created yet (new user)
-    return !this.isCompleted() && rooms.length === 0;
+    // Show onboarding modal until user completes it
+    return !this.isCompleted();
   });
 
   nextStep(step: OnboardingStep) {

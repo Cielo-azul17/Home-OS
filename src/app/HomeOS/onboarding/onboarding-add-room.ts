@@ -57,7 +57,7 @@ import { friendlyError } from '../core/errors';
           (click)="proceed()"
           [disabled]="store.rooms().length === 0"
         >
-          {{ store.rooms().length === 0 ? 'Add a room to continue' : 'Continue to upload bills' }}
+          Continue
         </button>
       </div>
     </div>
