@@ -8,6 +8,7 @@ import { EmptyState } from '../shared/empty-state/empty-state';
 import { HomeStore, reminderBadge, warrantyBadge } from '../core/home-store';
 import { AddFlowService } from '../add/add-flow.service';
 import { ToastService } from '../shared/toast/toast';
+import { ConfirmService } from '../shared/confirm.service';
 import { DocumentViewerService } from '../shared/document-viewer/document-viewer.service';
 import { CATEGORY_ICON } from '../core/models';
 import { friendlyError } from '../core/errors';
@@ -23,6 +24,7 @@ export class AssetDetail {
   private store = inject(HomeStore);
   private flow = inject(AddFlowService);
   private toasts = inject(ToastService);
+  private confirm = inject(ConfirmService);
   private viewer = inject(DocumentViewerService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -126,7 +128,14 @@ export class AssetDetail {
   async remove(): Promise<void> {
     const a = this.asset();
     if (!a || this.removing()) return;
-    if (!confirm(`Remove ${a.name} from your inventory?`)) return;
+
+    const confirmed = await this.confirm.confirm({
+      title: 'Delete Asset',
+      message: `Permanently delete ${a.name} from your inventory? This cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+    if (!confirmed) return;
 
     this.removing.set(true);
     try {

@@ -11,6 +11,7 @@ import { NotificationsPanel } from '../notifications/notifications-panel';
 import { NotificationsService } from '../core/notifications.service';
 import { HelpPanel } from '../help/help-panel';
 import { HelpService } from '../help/help.service';
+import { ConfirmDialog } from '../shared/confirm-dialog/confirm-dialog';
 import { SignIn } from '../auth/sign-in';
 import { OnboardingWizard } from '../onboarding/onboarding-wizard';
 import { OnboardingService } from '../core/onboarding.service';
@@ -30,6 +31,7 @@ import { HomeStore } from '../core/home-store';
     DocumentViewer,
     NotificationsPanel,
     HelpPanel,
+    ConfirmDialog,
     SignIn,
     OnboardingWizard,
   ],

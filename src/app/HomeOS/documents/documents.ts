@@ -10,6 +10,7 @@ import { HomeStore } from '../core/home-store';
 import { AddFlowService } from '../add/add-flow.service';
 import { DocumentViewerService } from '../shared/document-viewer/document-viewer.service';
 import { ToastService } from '../shared/toast/toast';
+import { ConfirmService } from '../shared/confirm.service';
 import { friendlyError } from '../core/errors';
 import { DOCUMENT_KINDS } from '../core/models';
 import { formatDate } from '../core/format';
@@ -25,6 +26,7 @@ export class DocumentsPage {
   private flow = inject(AddFlowService);
   private viewer = inject(DocumentViewerService);
   private toasts = inject(ToastService);
+  private confirm = inject(ConfirmService);
 
   loading = this.store.loading;
   kinds = DOCUMENT_KINDS;
@@ -123,6 +125,15 @@ export class DocumentsPage {
 
   async remove(id: string): Promise<void> {
     const title = this.store.documents().find((d) => d.id === id)?.title ?? 'document';
+
+    const confirmed = await this.confirm.confirm({
+      title: 'Delete Document',
+      message: `Permanently delete "${title}" and its file? This cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+    if (!confirmed) return;
+
     try {
       await this.store.removeDocument(id);
       this.toasts.show(`${title} deleted`, 'trash');

@@ -9,6 +9,7 @@ import { colorAt, DonutChart, DonutSegment } from '../shared/donut-chart/donut-c
 import { HomeStore } from '../core/home-store';
 import { AddFlowService } from '../add/add-flow.service';
 import { ToastService } from '../shared/toast/toast';
+import { ConfirmService } from '../shared/confirm.service';
 import { friendlyError } from '../core/errors';
 import { EXPENSE_CATEGORIES, Expense, ExpenseCategory } from '../core/models';
 import {
@@ -35,6 +36,7 @@ export class FinancesPage {
   private store = inject(HomeStore);
   private flow = inject(AddFlowService);
   private toasts = inject(ToastService);
+  private confirm = inject(ConfirmService);
 
   loading = this.store.loading;
   categories = EXPENSE_CATEGORIES;
@@ -243,6 +245,15 @@ export class FinancesPage {
 
   async remove(id: string): Promise<void> {
     const title = this.store.expenses().find((e) => e.id === id)?.title ?? 'Expense';
+
+    const confirmed = await this.confirm.confirm({
+      title: 'Delete Expense',
+      message: `Permanently delete "${title}"? This cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+    if (!confirmed) return;
+
     try {
       await this.store.removeExpense(id);
       this.toasts.show(`${title} deleted`, 'trash');

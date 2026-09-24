@@ -6,6 +6,7 @@ import { StatusBadge } from '../shared/status-badge/status-badge';
 import { HomeStore, reminderBadge, reminderState } from '../core/home-store';
 import { AddFlowService } from '../add/add-flow.service';
 import { ToastService } from '../shared/toast/toast';
+import { ConfirmService } from '../shared/confirm.service';
 import { friendlyError } from '../core/errors';
 import { Reminder, ReminderState } from '../core/models';
 import { formatDayMonth, relativeDay } from '../core/format';
@@ -33,6 +34,7 @@ export class RemindersPage {
   private store = inject(HomeStore);
   private flow = inject(AddFlowService);
   private toasts = inject(ToastService);
+  private confirm = inject(ConfirmService);
 
   loading = this.store.loading;
 
@@ -74,6 +76,15 @@ export class RemindersPage {
 
   async remove(id: string): Promise<void> {
     const title = this.store.reminders().find((r) => r.id === id)?.title ?? 'Reminder';
+
+    const confirmed = await this.confirm.confirm({
+      title: 'Delete Reminder',
+      message: `Permanently delete "${title}"? This cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+    if (!confirmed) return;
+
     try {
       await this.store.removeReminder(id);
       this.toasts.show(`${title} deleted`, 'trash');
