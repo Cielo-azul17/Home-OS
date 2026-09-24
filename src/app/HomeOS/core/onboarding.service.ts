@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HomeStore } from './home-store';
 
-export type OnboardingStep = 'welcome' | 'explore' | 'complete';
+export type OnboardingStep = 'welcome' | 'add-room' | 'upload-bills' | 'explore' | 'complete';
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingService {

@@ -4,10 +4,11 @@ import { Icon } from '../shared/icon/icon';
 import { OnboardingService } from '../core/onboarding.service';
 import { HomeStore } from '../core/home-store';
 import { OnboardingUpload } from './onboarding-upload';
+import { OnboardingAddRoom } from './onboarding-add-room';
 
 @Component({
   selector: 'app-onboarding-wizard',
-  imports: [CommonModule, Icon, OnboardingUpload],
+  imports: [CommonModule, Icon, OnboardingUpload, OnboardingAddRoom],
   template: `
     @if (showUploadModal()) {
       <app-onboarding-upload (onClose)="closeUploadModal()" />
@@ -23,13 +24,16 @@ import { OnboardingUpload } from './onboarding-upload';
               <h1>Welcome to HomeOS</h1>
               <p>Your AI-powered home management assistant.</p>
               <p>Organize your home with AI, track warranties, and stay on top of maintenance.</p>
-              <button class="btn btn-primary" (click)="nextStep()">
+              <button class="btn btn-primary" (click)="goToAddRoom()">
                 Getting Started
               </button>
               <p class="skip-text">
                 <button type="button" class="btn-link" (click)="skip()">Or skip for now</button>
               </p>
             </div>
+          }
+          @case ('add-room') {
+            <app-onboarding-add-room (backClick)="goBackToWelcome()" (proceedClick)="goToUploadBills()" />
           }
           @case ('explore') {
             <div class="step explore-step">
@@ -222,32 +226,22 @@ export class OnboardingWizard {
 
   constructor() {}
 
-  nextStep() {
+  goToAddRoom = () => {
+    this.onboarding.nextStep('add-room');
+  };
+
+  goBackToWelcome = () => {
+    this.onboarding.nextStep('welcome');
+  };
+
+  goToUploadBills = () => {
     // Record count before upload
     this.beforeCount = this.store.assets().length;
     this.createdCount.set(0);
 
-    // Open custom onboarding upload modal
+    this.onboarding.nextStep('upload-bills');
     this.showUploadModal.set(true);
-  }
-
-  openSmartAdd() {
-    // Record count before upload
-    this.beforeCount = this.store.assets().length;
-    this.createdCount.set(0);
-
-    // Open custom onboarding upload modal
-    this.showUploadModal.set(true);
-  }
-
-  uploadMore() {
-    // Record count before upload
-    this.beforeCount = this.store.assets().length;
-    this.createdCount.set(0);
-
-    // Open custom onboarding upload modal again
-    this.showUploadModal.set(true);
-  }
+  };
 
   closeUploadModal() {
     this.showUploadModal.set(false);
@@ -259,12 +253,19 @@ export class OnboardingWizard {
       this.createdCount.set(this.createdCount() + newCount);
     }
 
-    // If this was first upload (in welcome step), show results
-    if (this.onboarding.step() === 'welcome') {
-      setTimeout(() => {
-        this.onboarding.nextStep('explore');
-      }, 300);
-    }
+    // After upload completes, show results
+    setTimeout(() => {
+      this.onboarding.nextStep('explore');
+    }, 300);
+  }
+
+  uploadMore() {
+    // Record count before upload
+    this.beforeCount = this.store.assets().length;
+    this.createdCount.set(0);
+
+    // Open custom onboarding upload modal again
+    this.showUploadModal.set(true);
   }
 
   skip() {
