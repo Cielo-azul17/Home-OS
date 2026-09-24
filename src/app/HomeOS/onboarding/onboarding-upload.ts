@@ -42,27 +42,8 @@ interface ProcessingState {
           </button>
         </div>
 
-        <div class="tabs">
-          <button
-            [class.active]="activeTab() === 'upload'"
-            (click)="activeTab.set('upload')"
-            class="tab"
-          >
-            📸 Upload Bills
-          </button>
-          <button
-            [class.active]="activeTab() === 'room'"
-            (click)="activeTab.set('room')"
-            class="tab"
-          >
-            🚪 Add Room
-          </button>
-        </div>
 
-        <div class="tab-content">
-          @switch (activeTab()) {
-            @case ('upload') {
-              <div class="upload-tab">
+        <div class="upload-content">
                 @if (!uploading() && !reviewing()) {
                   <div
                     class="upload-area"
@@ -258,76 +239,6 @@ interface ProcessingState {
                     }
                   </div>
                 }
-              </div>
-            }
-            @case ('room') {
-              <div class="room-tab">
-                <form (ngSubmit)="addRoom()" class="room-form">
-                  <div class="form-group">
-                    <label for="room-name">Room Name</label>
-                    <div class="input-with-button">
-                      <input
-                        id="room-name"
-                        type="text"
-                        [(ngModel)]="roomName"
-                        name="roomName"
-                        placeholder="e.g., Kitchen, Bedroom, Living Room"
-                        required
-                        autofocus
-                      />
-                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="!roomName.trim()">
-                        @if (editingId) {
-                          Update
-                        } @else {
-                          Add Room
-                        }
-                      </button>
-                    </div>
-                  </div>
-                </form>
-
-                @if (createdRooms().length > 0) {
-                  <div class="rooms-list">
-                    <h4>Created Rooms ({{ createdRooms().length }})</h4>
-                    <div class="rooms-grid">
-                      @for (room of createdRooms(); track room.id) {
-                        <div class="room-card">
-                          <div class="room-icon">
-                            <app-icon name="door" [size]="32" />
-                          </div>
-                          <div class="room-info">
-                            <p class="room-name">{{ room.name }}</p>
-                          </div>
-                          <div class="room-actions">
-                            <button
-                              type="button"
-                              class="icon-btn"
-                              (click)="editRoom(room.id)"
-                              title="Edit"
-                            >
-                              <app-icon name="edit" [size]="18" />
-                            </button>
-                            <button
-                              type="button"
-                              class="icon-btn delete"
-                              (click)="deleteRoom(room.id)"
-                              title="Delete"
-                            >
-                              <app-icon name="trash" [size]="18" />
-                            </button>
-                          </div>
-                        </div>
-                      }
-                    </div>
-
-                    <button type="button" class="btn btn-primary" (click)="close()">
-                      Save Rooms & Continue
-                    </button>
-                  </div>
-                }
-              </div>
-            }
-          }
         </div>
       </div>
     </div>
@@ -938,15 +849,11 @@ export class OnboardingUpload {
   private supabase = inject(Supabase);
   private ai = inject(AiService);
 
-  activeTab = signal<'upload' | 'room'>('upload');
   dragOver = signal(false);
   uploading = signal(false);
   reviewing = signal(false);
   extractionError = signal('');
   extractedItems = signal<ExtractedItem[]>([]);
-  createdRooms = signal<Array<{ id: string; name: string }>>([]);
-  roomName = '';
-  editingId: string | null = null;
 
   // For edit forms
   assetCategories = ASSET_CATEGORIES;
@@ -1119,53 +1026,8 @@ export class OnboardingUpload {
   }
 
   private finishAndClose() {
-    const rooms = this.createdRooms();
-    rooms.forEach(room => {
-      void this.store.addRoom(room.name);
-    });
     this.reviewing.set(false);
     this.onClose.emit();
-  }
-
-  addRoom() {
-    if (!this.roomName.trim()) return;
-
-    const rooms = this.createdRooms();
-
-    if (this.editingId) {
-      // Update existing room
-      const index = rooms.findIndex(r => r.id === this.editingId);
-      if (index !== -1) {
-        rooms[index].name = this.roomName;
-        this.createdRooms.set([...rooms]);
-      }
-      this.editingId = null;
-    } else {
-      // Add new room
-      const newRoom = {
-        id: Date.now().toString(),
-        name: this.roomName
-      };
-      this.createdRooms.set([...rooms, newRoom]);
-    }
-
-    this.roomName = '';
-  }
-
-  editRoom(id: string) {
-    const room = this.createdRooms().find(r => r.id === id);
-    if (room) {
-      this.roomName = room.name;
-      this.editingId = id;
-    }
-  }
-
-  deleteRoom(id: string) {
-    this.createdRooms.set(this.createdRooms().filter(r => r.id !== id));
-    if (this.editingId === id) {
-      this.editingId = null;
-      this.roomName = '';
-    }
   }
 
   close() {
