@@ -282,7 +282,37 @@ export class OnboardingAddRoom {
   async addSuggestedRoom(name: string): Promise<void> {
     this.saving.set(true);
     try {
-      await this.store.addRoom(name);
+      let finalName = name;
+      const rooms = this.store.rooms();
+
+      // Check if a room with this name already exists
+      const baseNameMatch = name.match(/^(.+?)\s*(\d*)$/);
+      if (baseNameMatch) {
+        const baseName = baseNameMatch[1].trim();
+
+        // Find all rooms that match the base name
+        const matchingRooms = rooms.filter(r => {
+          const roomBaseMatch = r.name.match(/^(.+?)\s*(\d*)$/);
+          return roomBaseMatch && roomBaseMatch[1].trim() === baseName;
+        });
+
+        if (matchingRooms.length > 0) {
+          // Find the highest number
+          let maxNum = 1;
+          for (const room of matchingRooms) {
+            const numMatch = room.name.match(/(\d+)$/);
+            if (numMatch) {
+              maxNum = Math.max(maxNum, parseInt(numMatch[1], 10));
+            }
+          }
+
+          // Construct new name with incremented number
+          const newNum = maxNum + 1;
+          finalName = `${baseName} ${newNum}`;
+        }
+      }
+
+      await this.store.addRoom(finalName);
     } catch (err) {
       this.toasts.error(friendlyError(err, "Couldn't create room."));
     } finally {
