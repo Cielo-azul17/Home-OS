@@ -481,6 +481,7 @@ interface ProcessingState {
       border-top-color: #4b5563;
       border-radius: 50%;
       animation: spin 1s linear infinite;
+      margin-top: 24px;
     }
 
     @keyframes spin {
