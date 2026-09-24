@@ -13,6 +13,13 @@ interface ExtractedItem {
   data: any;
 }
 
+interface ProcessingState {
+  totalBills: number;
+  currentBill: number;
+  startTime: number;
+  elapsedSeconds: number;
+}
+
 @Component({
   selector: 'app-onboarding-upload',
   standalone: true,
@@ -86,6 +93,15 @@ interface ExtractedItem {
                     <div class="spinner"></div>
                     <p>Processing your bill...</p>
                     <p class="loading-subtext">AI is extracting details and organizing items</p>
+                    @if (processingState().totalBills > 0) {
+                      <div class="progress-info">
+                        <span class="bill-counter">Bill {{ processingState().currentBill }} of {{ processingState().totalBills }}</span>
+                        <span class="elapsed-time">{{ processingState().elapsedSeconds }}s</span>
+                      </div>
+                      <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="(processingState().currentBill / processingState().totalBills) * 100"></div>
+                      </div>
+                    }
                   </div>
                 } @else if (reviewing()) {
                   <div class="review-container">
@@ -364,6 +380,41 @@ interface ExtractedItem {
     .loading-subtext {
       color: #999;
       font-size: 12px !important;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 300px;
+      font-size: 13px;
+      color: #666;
+      margin-top: 12px;
+    }
+
+    .bill-counter {
+      font-weight: 500;
+    }
+
+    .elapsed-time {
+      color: #999;
+    }
+
+    .progress-bar {
+      width: 100%;
+      max-width: 300px;
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #4b5563;
+      transition: width 0.3s ease;
     }
 
     .form-group {
@@ -651,7 +702,11 @@ export class OnboardingUpload {
   createdRooms = signal<Array<{ id: string; name: string }>>([]);
   roomName = '';
   editingId: string | null = null;
+
+  processingState = signal<ProcessingState>({ totalBills: 0, currentBill: 0, startTime: 0, elapsedSeconds: 0 });
+
   private abortController: AbortController | null = null;
+  private timerInterval: number | null = null;
 
   onClose = output<void>();
 
@@ -676,6 +731,15 @@ export class OnboardingUpload {
     this.abortController = new AbortController();
     this.extractedItems.set([]);
 
+    const startTime = Date.now();
+    this.processingState.set({ totalBills: files.length, currentBill: 0, startTime, elapsedSeconds: 0 });
+
+    // Start timer to update elapsed seconds
+    this.timerInterval = window.setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      this.processingState.update(state => ({ ...state, elapsedSeconds: elapsed }));
+    }, 100);
+
     try {
       const fileArray = Array.from(files);
       const urls = await Promise.all(fileArray.map(f => this.fileToDataUrl(f)));
@@ -683,6 +747,8 @@ export class OnboardingUpload {
 
       for (let i = 0; i < urls.length; i++) {
         if (this.abortController.signal.aborted) break;
+
+        this.processingState.update(state => ({ ...state, currentBill: i + 1 }));
 
         try {
           const found = await this.ai.identify(urls[i], rooms, undefined, this.abortController.signal);
@@ -723,9 +789,11 @@ export class OnboardingUpload {
       }
 
       this.uploading.set(false);
+      if (this.timerInterval) clearInterval(this.timerInterval);
       this.reviewing.set(true);
     } catch (err) {
       console.error('Error in processFiles', err);
+      if (this.timerInterval) clearInterval(this.timerInterval);
       this.uploading.set(false);
     }
   }
