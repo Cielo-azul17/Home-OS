@@ -5,7 +5,7 @@ import { HomeStore } from '../core/home-store';
 import { ToastService } from '../shared/toast/toast';
 import { friendlyError } from '../core/errors';
 
-const SUGGESTED_ROOMS = ['Living Room', 'Bedroom 1', 'Kitchen', 'Study'];
+const SUGGESTED_ROOMS = ['Living Room', 'Bedroom', 'Kitchen', 'Study'];
 
 @Component({
   selector: 'app-onboarding-add-room',
