@@ -837,12 +837,12 @@ interface ProcessingState {
 
     .error-actions {
       display: flex;
-      gap: 8px;
-      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
     }
 
     .error-actions .btn {
-      min-width: 100px;
+      flex: 1;
     }
   `]
 })
@@ -915,11 +915,11 @@ export class OnboardingUpload {
 
         try {
           const found = await this.ai.identify(urls[i], rooms, undefined, this.abortController.signal);
-          console.log(`[Bill ${i + 1}] Gemini extracted:`, found);
+          console.log(`[Bill ${i + 1}] Gemini response:`, found);
           console.log(`[Bill ${i + 1}] Groups count:`, found.groups?.length ?? 0);
 
-          if (!found.groups || found.groups.length === 0) {
-            console.warn(`[Bill ${i + 1}] No items extracted`);
+          if (!found || !found.groups || found.groups.length === 0) {
+            console.warn(`[Bill ${i + 1}] No items extracted from response:`, found);
           }
 
           found.groups?.forEach((group, gi) => {
