@@ -4,9 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { Icon } from '../shared/icon/icon';
 import { HomeStore } from '../core/home-store';
 import { Supabase } from '../core/backend/supabase-client';
+import { AiService } from '../core/ai.service';
+
+interface ExtractedItem {
+  key: string;
+  kind: 'asset' | 'expense' | 'document';
+  keep: boolean;
+  data: any;
+}
 
 @Component({
   selector: 'app-onboarding-upload',
+  standalone: true,
   imports: [CommonModule, Icon, FormsModule],
   template: `
     <div class="upload-overlay">
@@ -45,14 +54,14 @@ import { Supabase } from '../core/backend/supabase-client';
           @switch (activeTab()) {
             @case ('upload') {
               <div class="upload-tab">
-                <div
-                  class="upload-area"
-                  (dragover)="dragOver.set(true)"
-                  (dragleave)="dragOver.set(false)"
-                  (drop)="onDrop($event)"
-                  [class.drag-active]="dragOver()"
-                >
-                  @if (!uploading()) {
+                @if (!uploading() && !reviewing()) {
+                  <div
+                    class="upload-area"
+                    (dragover)="dragOver.set(true)"
+                    (dragleave)="dragOver.set(false)"
+                    (drop)="onDrop($event)"
+                    [class.drag-active]="dragOver()"
+                  >
                     <app-icon name="camera" [size]="64" class="upload-icon" />
                     <h3>Upload Bills or Invoices</h3>
                     <p class="upload-hint">Drag multiple files here or click to select</p>
@@ -71,14 +80,51 @@ import { Supabase } from '../core/backend/supabase-client';
                     >
                       Choose File
                     </button>
-                  } @else {
-                    <div class="loading-content">
-                      <div class="spinner"></div>
-                      <p>Processing your bill...</p>
-                      <p class="loading-subtext">AI is extracting details and organizing items</p>
-                    </div>
-                  }
-                </div>
+                  </div>
+                } @else if (uploading()) {
+                  <div class="loading-content">
+                    <div class="spinner"></div>
+                    <p>Processing your bill...</p>
+                    <p class="loading-subtext">AI is extracting details and organizing items</p>
+                  </div>
+                } @else if (reviewing()) {
+                  <div class="review-container">
+                    <h3>Review Extracted Items</h3>
+                    @if (extractedItems().length === 0) {
+                      <p class="empty-message">No items extracted from the bills.</p>
+                    } @else {
+                      <div class="items-list">
+                        @for (item of extractedItems(); track item.key) {
+                          <div class="item-row" [class.unchecked]="!item.keep">
+                            <input type="checkbox" [checked]="item.keep" (change)="toggleItem(item.key)" />
+                            <div class="item-info">
+                              @if (item.kind === 'asset') {
+                                <span class="item-type">Product</span>
+                                <span class="item-title">{{ item.data.name }}</span>
+                                @if (item.data.brand) { <span class="item-detail">{{ item.data.brand }}</span> }
+                                <span class="item-detail">{{ item.data.category }}</span>
+                              } @else if (item.kind === 'expense') {
+                                <span class="item-type">Expense</span>
+                                <span class="item-title">{{ item.data.title }}</span>
+                                <span class="item-detail">₹{{ item.data.amount }}</span>
+                              } @else if (item.kind === 'document') {
+                                <span class="item-type">Document</span>
+                                <span class="item-title">{{ item.data.title }}</span>
+                                <span class="item-detail">{{ item.data.kind }}</span>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                      <div class="review-actions">
+                        <button type="button" class="btn btn-secondary" (click)="cancelReview()">Back</button>
+                        <button type="button" class="btn btn-primary" (click)="saveItems()" [disabled]="extractedItems().filter(i => i.keep).length === 0">
+                          Save Items
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
               </div>
             }
             @case ('room') {
@@ -490,18 +536,122 @@ import { Supabase } from '../core/backend/supabase-client';
       background: #fee2e2;
       color: #dc2626;
     }
+
+    .review-container {
+      padding: 20px;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .review-container h3 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #666;
+      padding: 40px 20px;
+      font-size: 14px;
+    }
+
+    .items-list {
+      flex: 1;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      max-height: 350px;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid #f3f4f6;
+      background: white;
+    }
+
+    .item-row:last-child {
+      border-bottom: none;
+    }
+
+    .item-row.unchecked {
+      opacity: 0.6;
+      background: #fafafa;
+    }
+
+    .item-row input {
+      margin-top: 3px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .item-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .item-type {
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      background: #4b5563;
+      padding: 2px 6px;
+      border-radius: 3px;
+      width: fit-content;
+    }
+
+    .item-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1f2937;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .item-detail {
+      font-size: 12px;
+      color: #666;
+      padding: 2px 6px;
+      background: #f3f4f6;
+      border-radius: 3px;
+      width: fit-content;
+    }
+
+    .review-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .review-actions .btn {
+      min-width: 100px;
+    }
   `]
 })
 export class OnboardingUpload {
   private store = inject(HomeStore);
   private supabase = inject(Supabase);
+  private ai = inject(AiService);
 
   activeTab = signal<'upload' | 'room'>('upload');
   dragOver = signal(false);
   uploading = signal(false);
+  reviewing = signal(false);
+  extractedItems = signal<ExtractedItem[]>([]);
   createdRooms = signal<Array<{ id: string; name: string }>>([]);
   roomName = '';
   editingId: string | null = null;
+  private abortController: AbortController | null = null;
 
   onClose = output<void>();
 
@@ -521,15 +671,106 @@ export class OnboardingUpload {
     }
   }
 
-  processFiles(files: FileList) {
+  async processFiles(files: FileList) {
     this.uploading.set(true);
-    // TODO: Call Gemini OCR API to process all files
-    // For now, just close after a delay (scales with number of files)
-    const delay = Math.min(2000 + files.length * 500, 5000);
-    setTimeout(() => {
+    this.abortController = new AbortController();
+    this.extractedItems.set([]);
+
+    try {
+      const fileArray = Array.from(files);
+      const urls = await Promise.all(fileArray.map(f => this.fileToDataUrl(f)));
+      const rooms = this.store.rooms();
+
+      for (let i = 0; i < urls.length; i++) {
+        if (this.abortController.signal.aborted) break;
+
+        try {
+          const found = await this.ai.identify(urls[i], rooms, undefined, this.abortController.signal);
+
+          found.groups?.forEach((group, gi) => {
+            if (group.asset) {
+              const a = group.asset;
+              const roomId = rooms.some(r => r.id === a.roomId) ? a.roomId : (rooms[0]?.id ?? '');
+              this.extractedItems.update(items => [...items, {
+                key: `asset-${i}-${gi}`,
+                kind: 'asset',
+                keep: true,
+                data: { name: a.name, brand: a.brand ?? '', category: a.category, roomId, purchaseDate: a.purchaseDate ?? '', purchasePrice: a.purchasePrice, warrantyExpiry: a.warrantyExpiry ?? '', serialNumber: a.serialNumber ?? '' }
+              }]);
+            }
+            if (group.expense) {
+              const e = group.expense;
+              this.extractedItems.update(items => [...items, {
+                key: `expense-${i}-${gi}`,
+                kind: 'expense',
+                keep: true,
+                data: { title: e.title, amount: e.amount, date: e.date, category: e.category }
+              }]);
+            }
+            if (group.document && group.document.fileName) {
+              const d = group.document;
+              this.extractedItems.update(items => [...items, {
+                key: `doc-${i}-${gi}`,
+                kind: 'document',
+                keep: true,
+                data: { title: d.title, kind: d.kind, fileName: d.fileName, sizeLabel: d.sizeLabel ?? '' }
+              }]);
+            }
+          });
+        } catch (err) {
+          console.error('Error processing file', i, err);
+        }
+      }
+
       this.uploading.set(false);
-      this.close();
-    }, delay);
+      this.reviewing.set(true);
+    } catch (err) {
+      console.error('Error in processFiles', err);
+      this.uploading.set(false);
+    }
+  }
+
+  private fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  toggleItem(key: string) {
+    this.extractedItems.update(items =>
+      items.map(item => item.key === key ? { ...item, keep: !item.keep } : item)
+    );
+  }
+
+  async saveItems() {
+    for (const item of this.extractedItems()) {
+      if (!item.keep) continue;
+      if (item.kind === 'asset') {
+        void this.store.addAsset(item.data);
+      } else if (item.kind === 'expense') {
+        void this.store.addExpense(item.data);
+      } else if (item.kind === 'document') {
+        void this.store.addDocument(item.data);
+      }
+    }
+    this.finishAndClose();
+  }
+
+  cancelReview() {
+    this.reviewing.set(false);
+    this.extractedItems.set([]);
+  }
+
+  private finishAndClose() {
+    const rooms = this.createdRooms();
+    rooms.forEach(room => {
+      void this.store.addRoom(room.name);
+    });
+    this.reviewing.set(false);
+    this.onClose.emit();
   }
 
   addRoom() {
