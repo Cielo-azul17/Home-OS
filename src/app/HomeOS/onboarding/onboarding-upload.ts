@@ -106,7 +106,19 @@ interface ProcessingState {
                 } @else if (reviewing()) {
                   <div class="review-container">
                     <h3>Review Extracted Items</h3>
-                    @if (extractedItems().length === 0) {
+                    @if (extractionError()) {
+                      <div class="error-message">
+                        <div class="error-icon">⚠️</div>
+                        <div class="error-content">
+                          <p class="error-title">Extraction Failed</p>
+                          <p class="error-text">{{ extractionError() }}</p>
+                        </div>
+                      </div>
+                      <div class="error-actions">
+                        <button type="button" class="btn btn-secondary" (click)="cancelReview()">Back</button>
+                        <button type="button" class="btn btn-primary" (click)="retryExtraction()">Retry</button>
+                      </div>
+                    } @else if (extractedItems().length === 0) {
                       <p class="empty-message">No items extracted from the bills.</p>
                     } @else {
                       <div class="items-list">
@@ -687,6 +699,49 @@ interface ProcessingState {
     .review-actions .btn {
       min-width: 100px;
     }
+
+    .error-message {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .error-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .error-content {
+      flex: 1;
+    }
+
+    .error-title {
+      margin: 0 0 4px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #991b1b;
+    }
+
+    .error-text {
+      margin: 0;
+      font-size: 13px;
+      color: #7f1d1d;
+      line-height: 1.4;
+    }
+
+    .error-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .error-actions .btn {
+      min-width: 100px;
+    }
   `]
 })
 export class OnboardingUpload {
@@ -698,6 +753,7 @@ export class OnboardingUpload {
   dragOver = signal(false);
   uploading = signal(false);
   reviewing = signal(false);
+  extractionError = signal('');
   extractedItems = signal<ExtractedItem[]>([]);
   createdRooms = signal<Array<{ id: string; name: string }>>([]);
   roomName = '';
@@ -707,6 +763,7 @@ export class OnboardingUpload {
 
   private abortController: AbortController | null = null;
   private timerInterval: number | null = null;
+  private lastFiles: FileList | null = null;
 
   onClose = output<void>();
 
@@ -730,6 +787,8 @@ export class OnboardingUpload {
     this.uploading.set(true);
     this.abortController = new AbortController();
     this.extractedItems.set([]);
+    this.extractionError.set('');
+    this.lastFiles = files;
 
     const startTime = Date.now();
     this.processingState.set({ totalBills: files.length, currentBill: 0, startTime, elapsedSeconds: 0 });
@@ -752,6 +811,12 @@ export class OnboardingUpload {
 
         try {
           const found = await this.ai.identify(urls[i], rooms, undefined, this.abortController.signal);
+          console.log(`[Bill ${i + 1}] Gemini extracted:`, found);
+          console.log(`[Bill ${i + 1}] Groups count:`, found.groups?.length ?? 0);
+
+          if (!found.groups || found.groups.length === 0) {
+            console.warn(`[Bill ${i + 1}] No items extracted`);
+          }
 
           found.groups?.forEach((group, gi) => {
             if (group.asset) {
@@ -790,11 +855,21 @@ export class OnboardingUpload {
 
       this.uploading.set(false);
       if (this.timerInterval) clearInterval(this.timerInterval);
-      this.reviewing.set(true);
+
+      // Check if any items were extracted
+      if (this.extractedItems().length === 0) {
+        console.warn('No items extracted from all bills');
+        this.extractionError.set('No items could be extracted from the bills. The image may be unclear or invalid. Try uploading a clearer bill image.');
+        this.reviewing.set(true);
+      } else {
+        this.reviewing.set(true);
+      }
     } catch (err) {
       console.error('Error in processFiles', err);
       if (this.timerInterval) clearInterval(this.timerInterval);
       this.uploading.set(false);
+      this.extractionError.set(err instanceof Error ? err.message : 'Failed to process bills. Please try again.');
+      this.reviewing.set(true);
     }
   }
 
@@ -811,6 +886,13 @@ export class OnboardingUpload {
     this.extractedItems.update(items =>
       items.map(item => item.key === key ? { ...item, keep: !item.keep } : item)
     );
+  }
+
+  retryExtraction() {
+    if (this.lastFiles) {
+      this.reviewing.set(false);
+      this.processFiles(this.lastFiles);
+    }
   }
 
   async saveItems() {
