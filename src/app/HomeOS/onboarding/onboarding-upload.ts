@@ -277,9 +277,9 @@ interface ProcessingState {
 
     .upload-modal {
       background: white;
-      border-radius: 12px;
+      border-radius: 12px 12px 12px 12px;
       width: 90%;
-      max-width: 575px;
+      max-width: 661px;
       padding: 0;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
       max-height: 90vh;
