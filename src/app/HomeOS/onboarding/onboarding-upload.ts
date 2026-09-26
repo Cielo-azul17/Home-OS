@@ -143,10 +143,8 @@ interface ProcessingState {
                             @if (item.kind === 'asset' && item.data.suggestedRoom && !getSuggestedRoomId(item.data.suggestedRoom)) {
                               <div class="room-suggestion-banner">
                                 <div class="suggestion-icon">💡</div>
-                                <div class="suggestion-text">
-                                  <p class="suggestion-label">This belongs in <strong>{{ item.data.suggestedRoom }}</strong></p>
-                                  <p class="suggestion-hint">Create the room to organize this item correctly</p>
-                                </div>
+                                <span class="suggestion-label">This belongs in <strong>{{ item.data.suggestedRoom }}</strong></span>
+                                <button type="button" class="btn-create-room" (click)="createRoomForItem(item)">Create & Add</button>
                               </div>
                             }
 
@@ -951,39 +949,49 @@ interface ProcessingState {
 
     .room-suggestion-banner {
       display: flex;
-      gap: 12px;
-      padding: 12px;
+      gap: 8px;
+      padding: 8px 12px;
       margin: 0 0 12px 0;
-      background: linear-gradient(to right, #fef3c7, #fef9e7);
+      background: #fef3c7;
       border-left: 4px solid #fbbf24;
-      border-radius: 0 6px 6px 0;
-      align-items: flex-start;
+      border-radius: 0 4px 4px 0;
+      align-items: center;
     }
 
     .suggestion-icon {
-      font-size: 20px;
+      font-size: 16px;
       flex-shrink: 0;
     }
 
-    .suggestion-text {
-      flex: 1;
-    }
-
     .suggestion-label {
-      margin: 0 0 4px 0;
+      flex: 1;
       font-size: 13px;
       font-weight: 600;
       color: #92400e;
+      margin: 0;
     }
 
     .suggestion-label strong {
       color: #d97706;
     }
 
-    .suggestion-hint {
-      margin: 0;
+    .btn-create-room {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      background: #fbbf24;
+      border: none;
+      border-radius: 4px;
       font-size: 12px;
-      color: #b45309;
+      font-weight: 600;
+      color: #92400e;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .btn-create-room:hover {
+      background: #f59e0b;
+      color: #78350f;
     }
   `]
 })
@@ -1161,6 +1169,16 @@ export class OnboardingUpload {
 
   getSuggestedRoomId(roomName: string): string | undefined {
     return this.store.rooms().find(r => r.name.toLowerCase() === roomName.toLowerCase())?.id;
+  }
+
+  async createRoomForItem(item: ExtractedItem): Promise<void> {
+    if (item.kind !== 'asset' || !item.data.suggestedRoom) return;
+    try {
+      const newRoom = await this.store.addRoom(item.data.suggestedRoom);
+      item.data.roomId = newRoom.id;
+    } catch (err) {
+      console.error('Failed to create room:', err);
+    }
   }
 
   async saveItems() {
