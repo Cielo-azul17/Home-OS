@@ -283,9 +283,11 @@ interface ProcessingState {
       padding: 0;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
       max-height: 90vh;
-      overflow-y: auto;
+      overflow-y: overlay;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
+      scrollbar-gutter: stable;
     }
 
     .modal-header {
