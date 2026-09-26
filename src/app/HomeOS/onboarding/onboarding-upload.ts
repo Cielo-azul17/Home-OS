@@ -279,7 +279,7 @@ interface ProcessingState {
       background: white;
       border-radius: 12px;
       width: 90%;
-      max-width: 500px;
+      max-width: 575px;
       padding: 0;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
       max-height: 90vh;

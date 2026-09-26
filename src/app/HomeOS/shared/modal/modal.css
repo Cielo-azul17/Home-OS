@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 560px;
+  max-width: 644px;
   max-height: calc(100vh - var(--spacing-64));
   background: var(--color-surface);
   border: 1px solid var(--color-soft-stone);
