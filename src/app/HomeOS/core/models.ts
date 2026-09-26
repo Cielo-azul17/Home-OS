@@ -289,3 +289,47 @@ export type AddMenuAction = 'Asset' | 'Expense' | 'Reminder' | 'Document';
 /** 'Anything' is the photo-led flow that can create several linked records;
     'Room' isn't in the + menu but uses the same modal machinery. */
 export type AddFlowKind = AddMenuAction | 'Anything' | 'Room';
+
+/* ---------- V2: Service Management ---------- */
+
+export type ServiceRequestStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+export type ServiceType = 'repair' | 'maintenance' | 'inspection';
+
+export interface ServiceRequest {
+  id: string;
+  assetId: string;
+  type: ServiceType;
+  description: string;
+  budgetRange?: string;
+  preferredTime?: string;
+  status: ServiceRequestStatus;
+  providerId?: string;
+  scheduledDate?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ServiceProvider {
+  id: string;
+  name: string;
+  rating: number;
+  reviewCount: number;
+  phone: string;
+  distance: number;
+  priceRange: string;
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+export interface MaintenanceTask {
+  id: string;
+  assetId: string;
+  title: string;
+  dueDate: string;
+  interval: 'monthly' | 'quarterly' | 'yearly';
+  lastServiceDate?: string;
+  nextServiceDate: string;
+  completed: boolean;
+}
