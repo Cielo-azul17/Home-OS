@@ -158,13 +158,14 @@ import { OnboardingAddRoom } from './onboarding-add-room';
       display: flex;
       flex-direction: column;
       gap: 12px;
-      text-align: left;
+      text-align: center;
     }
 
     .feature {
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: center;
+      gap: 8px;
       padding: 12px;
       background: #f9f9f9;
       border-radius: 8px;
