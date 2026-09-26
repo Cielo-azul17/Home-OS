@@ -4,14 +4,14 @@ Last updated: 2026-09-26. Build clean, **140 tests passing**, all changes pushed
 
 ---
 
-## V1 Status: FEATURE COMPLETE → POLISH (Smart Room Suggestions)
+## V1 Status: COMPLETE ✅
 
-**IN PROGRESS (2026-09-26):**
-- [ ] **Smart Room Suggestions** — Gemini suggests missing rooms for extracted items
-  - [ ] Update Gemini prompt to return suggested rooms per item
-  - [ ] UI: Show suggested room with option to create + allocate
-  - [ ] Auto-create rooms when user approves
-  - [ ] Handle item reallocation to new rooms
+**SHIPPED (2026-09-26):**
+- [x] **Smart Room Suggestions** — Gemini suggests missing rooms for all items
+  - [x] Bill extraction flow: Upload bill → Gemini suggests room → create or move
+  - [x] Manual asset flow: Upload photo → Gemini suggests room → create or move
+  - [x] Header banner alerts user to missing rooms
+  - [x] One-click to create room or move to suggested one
 
 **Completed (2026-09-20 → 2026-09-26):**
 - [x] Sequential onboarding: Welcome → Add Rooms → Upload Bills → Review → Explore
