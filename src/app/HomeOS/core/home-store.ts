@@ -479,13 +479,20 @@ export class HomeStore {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    const asset = this.asset(input.assetId);
-    this.logActivity(
-      'wrench',
-      `Requested ${input.type} for ${asset?.name || 'an item'}`,
-      'Service Requests',
-    );
-    return draft;
+    try {
+      // Persist to Supabase
+      const saved = await this.api.createServiceRequest(draft);
+      const asset = this.asset(input.assetId);
+      this.logActivity(
+        'wrench',
+        `Requested ${input.type} for ${asset?.name || 'an item'}`,
+        'Service Requests',
+      );
+      return saved;
+    } catch (err) {
+      console.error('Failed to create service request:', err);
+      throw err;
+    }
   }
 
   async searchProviders(location: string, serviceType: ServiceType): Promise<ServiceProvider[]> {
@@ -536,21 +543,24 @@ export class HomeStore {
     requestId: string,
     providerId: string,
   ): Promise<ServiceRequest> {
-    // Update service request with provider and confirmed status
-    const updated: ServiceRequest = {
-      id: requestId,
-      assetId: '',
-      type: 'repair',
-      description: '',
-      status: 'confirmed',
-      providerId,
-      scheduledDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .slice(0, 10),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    this.logActivity('check-circle', 'Service provider confirmed', 'Service Requests');
-    return updated;
+    // Calculate scheduled date (2 days from now)
+    const scheduledDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+
+    try {
+      // Persist to Supabase
+      const updated = await this.api.updateServiceRequest(requestId, {
+        status: 'confirmed',
+        providerId,
+        scheduledDate,
+        updatedAt: new Date().toISOString(),
+      });
+      this.logActivity('check-circle', 'Service provider confirmed', 'Service Requests');
+      return updated;
+    } catch (err) {
+      console.error('Failed to confirm service request:', err);
+      throw err;
+    }
   }
 }

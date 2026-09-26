@@ -293,7 +293,7 @@ export type AddFlowKind = AddMenuAction | 'Anything' | 'Room';
 /* ---------- V2: Service Management ---------- */
 
 export type ServiceRequestStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
-export type ServiceType = 'repair' | 'maintenance' | 'inspection';
+export type ServiceType = 'repair' | 'maintenance';
 
 export interface ServiceRequest {
   id: string;

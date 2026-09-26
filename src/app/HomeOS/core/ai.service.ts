@@ -56,14 +56,14 @@ function schema(rooms: Room[]) {
                 name: { type: 'STRING' },
                 brand: { type: 'STRING', nullable: true },
                 category: { type: 'STRING', enum: ASSET_CATEGORIES },
-                roomId: { type: 'STRING', enum: rooms.map((r) => r.id) },
+                roomId: { type: 'STRING', nullable: true },
                 suggestedRoom: { type: 'STRING', nullable: true },
                 purchaseDate: { type: 'STRING', nullable: true },
                 purchasePrice: { type: 'NUMBER', nullable: true },
                 warrantyExpiry: { type: 'STRING', nullable: true },
                 serialNumber: { type: 'STRING', nullable: true },
               },
-              required: ['name', 'category', 'roomId'],
+              required: ['name', 'category'],
             },
             expense: {
               type: 'OBJECT',
@@ -123,9 +123,11 @@ Rules:
 - summary is one short sentence describing what the image is.
 
 Room assignment:
-- Use an existing roomId if it's a good match. If no room matches but you know what room it belongs in (e.g., dining table → Kitchen, TV → Living Room), put that in suggestedRoom as a string (e.g., "Kitchen", "Bedroom 1", "Master Bathroom").
-- If you suggest a new room, the user will be asked to create it.
-- Default to the first available room if unsure.`;
+- For each asset, decide the best room based on the item type.
+- If an existing room is a good match: set roomId to that room's id.
+- If no existing room matches but you know the room it belongs in: set suggestedRoom ONLY (leave roomId empty/null). Examples: laptop → "Study", TV → "Living Room", washing machine → "Laundry", air fryer → "Kitchen".
+- ALWAYS suggest a room if no existing room matches. Never leave both roomId and suggestedRoom empty.
+- If still unsure and rooms exist: use the first available room's id.`;
 }
 
 @Injectable({ providedIn: 'root' })

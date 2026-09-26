@@ -10,6 +10,7 @@ import {
   Reminder,
   Room,
   ServiceRecord,
+  ServiceRequest,
 } from '../models';
 
 /* The boundary between Postgres rows and the domain model: snake_case,
@@ -110,6 +111,21 @@ export function toActivity(row: Row): ActivityEntry {
     context: row.context ?? '',
     // The app works in plain dates; the column is a timestamp.
     at: String(row.at).slice(0, 10),
+  };
+}
+
+export function toServiceRequest(row: Row): ServiceRequest {
+  return {
+    id: row.id,
+    assetId: row.asset_id,
+    type: row.type,
+    description: row.description,
+    status: row.status,
+    providerId: row.provider_id ?? undefined,
+    scheduledDate: row.scheduled_date ?? undefined,
+    notes: row.notes ?? undefined,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }
 

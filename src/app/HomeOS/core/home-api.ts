@@ -6,6 +6,7 @@ import {
   HomeDocument,
   Reminder,
   Room,
+  ServiceRequest,
 } from './models';
 import {
   SEED_ACTIVITY,
@@ -122,6 +123,19 @@ export class HomeApi {
 
   updateRoom(room: Room): Promise<Room> {
     return this.live ? this.remote.updateRoom(room) : this.delay(room);
+  }
+
+  createServiceRequest(request: ServiceRequest): Promise<ServiceRequest> {
+    return this.live ? this.remote.createServiceRequest(request) : this.delay(request);
+  }
+
+  updateServiceRequest(
+    requestId: string,
+    updates: Partial<ServiceRequest>,
+  ): Promise<ServiceRequest> {
+    return this.live
+      ? this.remote.updateServiceRequest(requestId, updates)
+      : this.delay({ ...updates, id: requestId } as ServiceRequest);
   }
 
   /** Fire-and-forget: a failed log entry must never fail the user's action. */

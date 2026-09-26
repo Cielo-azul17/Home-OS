@@ -262,6 +262,14 @@
     />
   }
 
+  @if (showReminderTiming() && estimatedScheduledDate()) {
+    <app-reminder-timing-modal
+      [scheduledDate]="estimatedScheduledDate()"
+      (submitted)="onReminderTimingSubmitted($event)"
+      (closeModal)="closeReminderTiming()"
+    />
+  }
+
   @if (showServiceTracking() && serviceRequest(); as req) {
     <div class="service-tracking-overlay" (click)="closeServiceTracking()">
       <div class="service-tracking-modal" (click)="$event.stopPropagation()">

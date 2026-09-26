@@ -12,6 +12,7 @@ import { ConfirmService } from '../shared/confirm.service';
 import { DocumentViewerService } from '../shared/document-viewer/document-viewer.service';
 import { RequestServiceModal } from '../add/request-service-modal';
 import { ProviderSearch } from '../add/provider-search';
+import { ReminderTimingModal, ReminderTiming } from '../add/reminder-timing-modal';
 import { ServiceTracking } from './service-tracking';
 import { CATEGORY_ICON, ServiceRequest, ServiceProvider, ServiceType } from '../core/models';
 import { friendlyError } from '../core/errors';
@@ -19,7 +20,7 @@ import { daysUntil, formatCurrency, formatDate, relativeDay } from '../core/form
 
 @Component({
   selector: 'app-asset-detail',
-  imports: [Icon, StatusBadge, EmptyState, RouterLink, RequestServiceModal, ProviderSearch, ServiceTracking],
+  imports: [Icon, StatusBadge, EmptyState, RouterLink, RequestServiceModal, ProviderSearch, ReminderTimingModal, ServiceTracking],
   templateUrl: './asset-detail.html',
   styleUrl: './asset-detail.css',
 })
@@ -39,10 +40,13 @@ export class AssetDetail {
   // V2 Service Request flow
   showServiceModal = signal(false);
   showProviderSearch = signal(false);
+  showReminderTiming = signal(false);
   showServiceTracking = signal(false);
   serviceRequest = signal<ServiceRequest | null>(null);
   providers = signal<ServiceProvider[]>([]);
   selectedProvider = signal<ServiceProvider | null>(null);
+  pendingProvider = signal<ServiceProvider | null>(null);
+  estimatedScheduledDate = signal<string>('');
 
   id = toSignal(this.route.paramMap.pipe(map((p) => p.get('id') ?? '')), {
     initialValue: '',
@@ -163,17 +167,68 @@ export class AssetDetail {
     }
   }
 
-  async onProviderSelected(provider: ServiceProvider): Promise<void> {
+  onProviderSelected(provider: ServiceProvider): void {
+    // Show reminder timing modal instead of immediately confirming
+    this.pendingProvider.set(provider);
+    // Calculate estimated scheduled date (2 days from now)
+    const scheduledDate = new Date();
+    scheduledDate.setDate(scheduledDate.getDate() + 2);
+    this.estimatedScheduledDate.set(scheduledDate.toISOString().split('T')[0]);
+    this.showProviderSearch.set(false);
+    this.showReminderTiming.set(true);
+  }
+
+  async onReminderTimingSubmitted(timing: ReminderTiming): Promise<void> {
+    const provider = this.pendingProvider();
     const request = this.serviceRequest();
-    if (!request) return;
+    if (!request || !provider) return;
 
     try {
       const updated = await this.store.confirmServiceRequest(request.id, provider.id);
       this.serviceRequest.set(updated);
       this.selectedProvider.set(provider);
-      this.showProviderSearch.set(false);
+      this.showReminderTiming.set(false);
       this.showServiceTracking.set(true);
-      this.toasts.show('Provider confirmed! Tracking your service request.', 'check-circle');
+
+      // Add service booking to asset history
+      const asset = this.asset();
+      if (asset) {
+        const historyEntry = {
+          id: `service-${Date.now()}`,
+          kind: 'service' as const,
+          title: `Service booked with ${provider.name}`,
+          date: new Date().toISOString(),
+          provider: provider.name,
+        };
+        await this.store.updateAsset({
+          ...asset,
+          history: [historyEntry, ...asset.history],
+        });
+
+        // Create reminder with selected timing
+        if (updated.scheduledDate) {
+          const scheduledDate = new Date(updated.scheduledDate);
+          let reminderDate = new Date(scheduledDate);
+
+          if (timing.type === '1-day-before') {
+            reminderDate.setDate(reminderDate.getDate() - 1);
+          } else if (timing.type === '2-days-before') {
+            reminderDate.setDate(reminderDate.getDate() - 2);
+          } else if (timing.type === '3-days-before') {
+            reminderDate.setDate(reminderDate.getDate() - 3);
+          }
+
+          await this.store.addReminder({
+            title: `Service scheduled with ${provider.name}`,
+            assetId: this.id(),
+            dueDate: reminderDate.toISOString().split('T')[0],
+            repeat: 'none',
+            notes: timing.note || `Service booking with ${provider.name}`,
+          });
+        }
+      }
+
+      this.toasts.show('Provider confirmed! Reminder set.', 'check-circle');
     } catch (err) {
       this.toasts.error(
         friendlyError(err, 'Could not confirm provider'),
@@ -187,6 +242,12 @@ export class AssetDetail {
 
   closeProviderSearch(): void {
     this.showProviderSearch.set(false);
+  }
+
+  closeReminderTiming(): void {
+    this.showReminderTiming.set(false);
+    this.showProviderSearch.set(true);
+    this.pendingProvider.set(null);
   }
 
   closeServiceTracking(): void {

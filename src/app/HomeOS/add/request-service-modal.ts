@@ -26,10 +26,6 @@ import { ServiceType } from '../core/models';
               <input type="radio" id="maintenance" value="maintenance" [(ngModel)]="serviceType" name="type" />
               <label for="maintenance">🧹 Maintenance</label>
             </div>
-            <div class="radio-option">
-              <input type="radio" id="inspection" value="inspection" [(ngModel)]="serviceType" name="type" />
-              <label for="inspection">🔍 Inspection</label>
-            </div>
           </div>
         </div>
 

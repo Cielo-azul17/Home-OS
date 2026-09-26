@@ -8,6 +8,7 @@ import {
   Reminder,
   Room,
   ServiceRecord,
+  ServiceRequest,
 } from '../models';
 import {
   dataUrlToBlob,
@@ -20,6 +21,7 @@ import {
   toReminder,
   toRoom,
   toServiceRecord,
+  toServiceRequest,
 } from './row-mapping';
 import { HomeSnapshot } from '../home-api';
 
@@ -393,6 +395,52 @@ export class SupabaseBackend {
 
     if (error) throw new Error(`Could not save the file: ${error.message}`);
     return path;
+  }
+
+  /* ---------- Service Requests ---------- */
+
+  async createServiceRequest(draft: ServiceRequest): Promise<ServiceRequest> {
+    const homeId = await this.home();
+    const { data, error } = await this.supabase.db
+      .from('service_requests')
+      .insert({
+        home_id: homeId,
+        asset_id: draft.assetId,
+        type: draft.type,
+        description: draft.description,
+        status: draft.status,
+        provider_id: draft.providerId || null,
+        scheduled_date: draft.scheduledDate || null,
+        notes: draft.notes || null,
+        created_at: draft.createdAt,
+        updated_at: draft.updatedAt,
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return toServiceRequest(data);
+  }
+
+  async updateServiceRequest(
+    requestId: string,
+    updates: Partial<ServiceRequest>,
+  ): Promise<ServiceRequest> {
+    const { data, error } = await this.supabase.db
+      .from('service_requests')
+      .update({
+        ...(updates.status !== undefined && { status: updates.status }),
+        ...(updates.providerId !== undefined && { provider_id: updates.providerId }),
+        ...(updates.scheduledDate !== undefined && { scheduled_date: updates.scheduledDate }),
+        ...(updates.notes !== undefined && { notes: updates.notes }),
+        ...(updates.updatedAt !== undefined && { updated_at: updates.updatedAt }),
+      })
+      .eq('id', requestId)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return toServiceRequest(data);
   }
 
   private async sign(path: string | null | undefined): Promise<string | undefined> {

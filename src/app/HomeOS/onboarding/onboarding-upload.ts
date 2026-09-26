@@ -173,6 +173,7 @@ interface ProcessingState {
                                     <label class="field-label">Room</label>
                                     <div style="display: flex; gap: 8px; align-items: flex-start;">
                                       <select class="select" [(ngModel)]="item.data.roomId" style="flex: 1;">
+                                        <option value="">Unassigned</option>
                                         @for (room of rooms(); track room.id) {
                                           <option [value]="room.id">{{ room.name }}</option>
                                         }
@@ -1077,7 +1078,9 @@ export class OnboardingUpload {
           found.groups?.forEach((group, gi) => {
             if (group.asset) {
               const a = group.asset;
-              const roomId = rooms.some(r => r.id === a.roomId) ? a.roomId : (rooms[0]?.id ?? '');
+              // Smart assign: use suggested room if it exists, otherwise use provided roomId or first room
+              const suggestedRoomId = a.suggestedRoom ? rooms.find(r => r.name.toLowerCase() === a.suggestedRoom!.toLowerCase())?.id : null;
+              const roomId = rooms.some(r => r.id === a.roomId) ? a.roomId : ((suggestedRoomId || rooms[0]?.id) ?? '');
 
               // Track suggested room if provided and doesn't exist yet
               if (a.suggestedRoom && !rooms.some(r => r.name.toLowerCase() === a.suggestedRoom!.toLowerCase())) {
@@ -1091,7 +1094,7 @@ export class OnboardingUpload {
                 kind: 'asset',
                 keep: true,
                 open: false,
-                data: { name: a.name, brand: a.brand ?? '', category: a.category, roomId, suggestedRoom: a.suggestedRoom ?? '', purchaseDate: a.purchaseDate ?? '', purchasePrice: a.purchasePrice, warrantyExpiry: a.warrantyExpiry ?? '', serialNumber: a.serialNumber ?? '' }
+                data: { name: a.name, brand: a.brand ?? '', category: a.category, roomId, suggestedRoom: a.suggestedRoom || undefined, purchaseDate: a.purchaseDate ?? '', purchasePrice: a.purchasePrice, warrantyExpiry: a.warrantyExpiry ?? '', serialNumber: a.serialNumber ?? '' }
               }]);
             }
             if (group.expense) {
