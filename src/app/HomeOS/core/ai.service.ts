@@ -57,6 +57,7 @@ function schema(rooms: Room[]) {
                 brand: { type: 'STRING', nullable: true },
                 category: { type: 'STRING', enum: ASSET_CATEGORIES },
                 roomId: { type: 'STRING', enum: rooms.map((r) => r.id) },
+                suggestedRoom: { type: 'STRING', nullable: true },
                 purchaseDate: { type: 'STRING', nullable: true },
                 purchasePrice: { type: 'NUMBER', nullable: true },
                 warrantyExpiry: { type: 'STRING', nullable: true },
@@ -119,7 +120,12 @@ Rules:
 - Dates must be YYYY-MM-DD. If the document shows a purchase date, use it; otherwise leave it out.
 - If a warranty period is stated (e.g. "2 years"), compute warrantyExpiry from the purchase date.
 - confidence is 0-1, reflecting how clearly you can read the image.
-- summary is one short sentence describing what the image is.`;
+- summary is one short sentence describing what the image is.
+
+Room assignment:
+- Use an existing roomId if it's a good match. If no room matches but you know what room it belongs in (e.g., dining table → Kitchen, TV → Living Room), put that in suggestedRoom as a string (e.g., "Kitchen", "Bedroom 1", "Master Bathroom").
+- If you suggest a new room, the user will be asked to create it.
+- Default to the first available room if unsure.`;
 }
 
 @Injectable({ providedIn: 'root' })

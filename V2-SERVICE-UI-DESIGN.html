@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomeOS V2 Service Management</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    .screen {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .screen h2 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #4b5563;
+    }
+
+    /* Asset Detail Screen */
+    .asset-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .asset-icon {
+      width: 48px;
+      height: 48px;
+      background: #e8eef5;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .asset-info h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .asset-info p {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #fff3cd;
+      color: #856404;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .badge.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .section {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .detail-row .label {
+      color: #666;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: #4b5563;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #3a4350;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #333;
+      margin-top: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    /* Service Request Form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #4b5563;
+      box-shadow: 0 0 0 3px rgba(75, 85, 99, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .radio-option {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .radio-option input[type="radio"] {
+      display: none;
+    }
+
+    .radio-option label {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 0;
+      text-transform: none;
+    }
+
+    .radio-option input[type="radio"]:checked + label {
+      background: #e8eef5;
+      border-color: #4b5563;
+    }
+
+    /* Provider Search Results */
+    .provider-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .provider-card:hover {
+      border-color: #4b5563;
+      box-shadow: 0 2px 8px rgba(75, 85, 99, 0.1);
+    }
+
+    .provider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .provider-name {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .provider-distance {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .provider-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .stars {
+      color: #fbbf24;
+    }
+
+    .provider-details {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    /* Service Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .timeline-item {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 0;
+      width: 8px;
+      height: 8px;
+      background: #4b5563;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 0 0 1px #4b5563;
+    }
+
+    .timeline-item.done::before {
+      background: #10b981;
+      box-shadow: 0 0 0 1px #10b981;
+    }
+
+    .timeline-date {
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .timeline-text {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
+    .notes {
+      font-size: 12px;
+      color: #999;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Screen 1: Asset Detail with Service Button -->
+    <div class="screen">
+      <h2>1. Asset Detail — Request Service</h2>
+
+      <div class="asset-header">
+        <div class="asset-icon">🛰️</div>
+        <div class="asset-info">
+          <h3>Samsung 65" TV</h3>
+          <p>Living Room • Electronics</p>
+          <div class="badge error">⚠️ Needs Service</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Warranty</div>
+        <div class="detail-row">
+          <span class="label">Expires:</span>
+          <span>2027-03-15</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Days left:</span>
+          <span class="error">142 days</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Purchase Info</div>
+        <div class="detail-row">
+          <span class="label">Date:</span>
+          <span>2025-03-15</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Price:</span>
+          <span>₹45,000</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary">🔧 Request Service</button>
+      <button class="btn btn-secondary">📞 Find Repair Shops</button>
+    </div>
+
+    <!-- Screen 2: Service Request Form -->
+    <div class="screen">
+      <h2>2. Service Request Form</h2>
+
+      <div class="form-group">
+        <label>Item</label>
+        <input type="text" value="Samsung 65&quot; TV (Living Room)" disabled style="background: #f0f0f0; cursor: not-allowed;">
+      </div>
+
+      <div class="form-group">
+        <label>Service Type</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" name="type" id="repair" checked>
+            <label for="repair">🔧 Repair</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" name="type" id="maintenance">
+            <label for="maintenance">🧹 Maintenance</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Issue Description</label>
+        <textarea placeholder="e.g., Screen flickering, won't turn on, audio issues...">Screen flickering intermittently</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Budget Range (Optional)</label>
+        <select>
+          <option>No specific budget</option>
+          <option>₹500 - ₹2,000</option>
+          <option>₹2,000 - ₹5,000</option>
+          <option>₹5,000+</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Preferred Time</label>
+        <input type="text" placeholder="e.g., Weekdays after 5pm, Weekends">
+      </div>
+
+      <button class="btn btn-primary">Search Providers</button>
+    </div>
+
+    <!-- Screen 3: Provider Search Results -->
+    <div class="screen">
+      <h2>3. Provider Search Results</h2>
+
+      <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+        <p style="font-size: 13px; color: #666;">Found 5 TV repair shops near you</p>
+      </div>
+
+      <div class="provider-card">
+        <div class="provider-header">
+          <div>
+            <div class="provider-name">Elite TV Repairs</div>
+            <div class="provider-distance">2.3 km away • Open today</div>
+          </div>
+          <div class="provider-rating">
+            <span class="stars">★★★★★</span>
+            <span>(428)</span>
+          </div>
+        </div>
+        <div class="provider-details">
+          <span>📞 +91 98765 43210</span>
+          <span>₹500-1500</span>
+        </div>
+      </div>
+
+      <div class="provider-card">
+        <div class="provider-header">
+          <div>
+            <div class="provider-name">QuickFix Electronics</div>
+            <div class="provider-distance">1.8 km away • Open today</div>
+          </div>
+          <div class="provider-rating">
+            <span class="stars">★★★★☆</span>
+            <span>(156)</span>
+          </div>
+        </div>
+        <div class="provider-details">
+          <span>📞 +91 98654 32109</span>
+          <span>₹300-1000</span>
+        </div>
+      </div>
+
+      <div class="provider-card">
+        <div class="provider-header">
+          <div>
+            <div class="provider-name">Samsung Service Center</div>
+            <div class="provider-distance">5.2 km away • Open tomorrow</div>
+          </div>
+          <div class="provider-rating">
+            <span class="stars">★★★★★</span>
+            <span>(892)</span>
+          </div>
+        </div>
+        <div class="provider-details">
+          <span>📞 +91 98543 21098</span>
+          <span>₹1000-2500</span>
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" style="margin-top: 16px;">View on Map</button>
+    </div>
+
+    <!-- Screen 4: Service Request Tracking -->
+    <div class="screen">
+      <h2>4. Service Request Tracking</h2>
+
+      <div style="margin-bottom: 16px; padding: 12px; background: #f0f9ff; border-radius: 6px; border-left: 4px solid #0ea5e9;">
+        <div style="font-weight: 600; color: #0369a1; font-size: 14px;">Service Confirmed ✓</div>
+        <div style="font-size: 13px; color: #0369a1; margin-top: 4px;">Elite TV Repairs — Sept 28, 10:00 AM</div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <div class="section-title">Timeline</div>
+        <div class="timeline">
+          <div class="timeline-item done">
+            <div class="timeline-date">Sept 26, 2:30 PM</div>
+            <div class="timeline-text">Service request created</div>
+          </div>
+          <div class="timeline-item done">
+            <div class="timeline-date">Sept 26, 2:45 PM</div>
+            <div class="timeline-text">Provider confirmed (Elite TV Repairs)</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Sept 28, 10:00 AM</div>
+            <div class="timeline-text">Technician arrival (scheduled)</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Pending</div>
+            <div class="timeline-text">Service complete</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Provider Contact</div>
+        <div class="detail-row">
+          <span class="label">Name:</span>
+          <span>Elite TV Repairs</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Phone:</span>
+          <span style="color: #0ea5e9; cursor: pointer;">+91 98765 43210</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Address:</span>
+          <span>123 Main St, Downtown</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary">View Location</button>
+      <button class="btn btn-secondary">Add Notes</button>
+    </div>
+  </div>
+
+  <div style="max-width: 1200px; margin: 40px auto;">
+    <div class="notes">
+      <strong>Design Notes:</strong>
+      <ul style="margin-left: 20px; margin-top: 8px; line-height: 1.6;">
+        <li><strong>Screen 1:</strong> Asset detail shows "Needs Service" badge when warranty expiring or maintenance due. Quick action buttons.</li>
+        <li><strong>Screen 2:</strong> Form collects service type, description, budget, and preferred timing. Mirrors Smart Add UI pattern.</li>
+        <li><strong>Screen 3:</strong> Search results from Google Maps API. Shows rating, distance, price range, direct phone.</li>
+        <li><strong>Screen 4:</strong> Request tracking with timeline. Auto-adds reminder 1 day before. User can call provider directly.</li>
+        <li><strong>Pattern:</strong> All screens use existing HomeOS design system (colors, spacing, components).</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
