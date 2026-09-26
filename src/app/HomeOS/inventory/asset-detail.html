@@ -42,9 +42,9 @@
                 <app-icon name="edit" [size]="16" />
                 Edit details
               </button>
-              <button type="button" class="btn btn-primary" (click)="addReminder()">
-                <app-icon name="bell-plus" [size]="16" />
-                Schedule service
+              <button type="button" class="btn btn-primary" (click)="requestService()">
+                <app-icon name="wrench" [size]="16" />
+                Request Service
               </button>
               <button type="button" class="btn btn-secondary" (click)="addDocument()">
                 <app-icon name="file-plus" [size]="16" />
@@ -243,5 +243,36 @@
       title="We couldn't find that item"
       message="It may have been removed from your inventory."
     />
+  }
+
+  <!-- V2 Service Request Modals -->
+  @if (showServiceModal()) {
+    <app-request-service-modal
+      [assetId]="id()"
+      (submitted)="onServiceRequestSubmitted($event)"
+      (closeModal)="closeServiceModal()"
+    />
+  }
+
+  @if (showProviderSearch()) {
+    <app-provider-search
+      [providers]="providers()"
+      (selected)="onProviderSelected($event)"
+      (closeModal)="closeProviderSearch()"
+    />
+  }
+
+  @if (showServiceTracking() && serviceRequest(); as req) {
+    <div class="service-tracking-overlay" (click)="closeServiceTracking()">
+      <div class="service-tracking-modal" (click)="$event.stopPropagation()">
+        <div class="tracking-header">
+          <h2>Service Request Tracking</h2>
+          <button type="button" class="close-btn" (click)="closeServiceTracking()">
+            <app-icon name="x" [size]="24" />
+          </button>
+        </div>
+        <app-service-tracking [request]="req" [provider]="selectedProvider()" />
+      </div>
+    </div>
   }
 </div>

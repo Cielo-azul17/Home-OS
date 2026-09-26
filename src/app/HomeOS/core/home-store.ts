@@ -15,6 +15,9 @@ import {
   ReminderState,
   Room,
   StatusBadgeModel,
+  ServiceRequest,
+  ServiceProvider,
+  ServiceType,
 } from './models';
 import { ImageDefaults } from './image-defaults';
 import {
@@ -454,5 +457,100 @@ export class HomeStore {
     const saved = await this.api.updateRoom(room);
     this.rooms.update((list) => list.map((r) => (r.id === saved.id ? saved : r)));
     this.logActivity('edit', `Renamed a room to ${saved.name}`, 'Rooms');
+  }
+
+  /* V2: Service Management */
+
+  async createServiceRequest(input: {
+    assetId: string;
+    type: ServiceType;
+    description: string;
+    budgetRange: string;
+    preferredTime: string;
+  }): Promise<ServiceRequest> {
+    const draft: ServiceRequest = {
+      id: uid('sr'),
+      assetId: input.assetId,
+      type: input.type,
+      description: input.description,
+      budgetRange: input.budgetRange || undefined,
+      preferredTime: input.preferredTime || undefined,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const asset = this.asset(input.assetId);
+    this.logActivity(
+      'wrench',
+      `Requested ${input.type} for ${asset?.name || 'an item'}`,
+      'Service Requests',
+    );
+    return draft;
+  }
+
+  async searchProviders(location: string, serviceType: ServiceType): Promise<ServiceProvider[]> {
+    // Mock providers for V2 MVP
+    // TODO: Integrate with Google Maps API
+    const mockProviders: ServiceProvider[] = [
+      {
+        id: '1',
+        name: 'Elite Repair Services',
+        rating: 4.8,
+        reviewCount: 428,
+        phone: '+91 98765 43210',
+        distance: 2.3,
+        priceRange: '₹500-1500',
+        address: '123 Main St, Downtown',
+        lat: 19.076,
+        lng: 72.8479,
+      },
+      {
+        id: '2',
+        name: 'QuickFix Electronics',
+        rating: 4.5,
+        reviewCount: 156,
+        phone: '+91 98654 32109',
+        distance: 1.8,
+        priceRange: '₹300-1000',
+        address: '456 Park Ave, Midtown',
+        lat: 19.0761,
+        lng: 72.8775,
+      },
+      {
+        id: '3',
+        name: 'Professional Service Center',
+        rating: 4.9,
+        reviewCount: 892,
+        phone: '+91 98543 21098',
+        distance: 5.2,
+        priceRange: '₹1000-2500',
+        address: '789 Tech Plaza, Uptown',
+        lat: 19.1136,
+        lng: 72.8697,
+      },
+    ];
+    return mockProviders;
+  }
+
+  async confirmServiceRequest(
+    requestId: string,
+    providerId: string,
+  ): Promise<ServiceRequest> {
+    // Update service request with provider and confirmed status
+    const updated: ServiceRequest = {
+      id: requestId,
+      assetId: '',
+      type: 'repair',
+      description: '',
+      status: 'confirmed',
+      providerId,
+      scheduledDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.logActivity('check-circle', 'Service provider confirmed', 'Service Requests');
+    return updated;
   }
 }

@@ -10,13 +10,16 @@ import { AddFlowService } from '../add/add-flow.service';
 import { ToastService } from '../shared/toast/toast';
 import { ConfirmService } from '../shared/confirm.service';
 import { DocumentViewerService } from '../shared/document-viewer/document-viewer.service';
-import { CATEGORY_ICON } from '../core/models';
+import { RequestServiceModal } from '../add/request-service-modal';
+import { ProviderSearch } from '../add/provider-search';
+import { ServiceTracking } from './service-tracking';
+import { CATEGORY_ICON, ServiceRequest, ServiceProvider, ServiceType } from '../core/models';
 import { friendlyError } from '../core/errors';
 import { daysUntil, formatCurrency, formatDate, relativeDay } from '../core/format';
 
 @Component({
   selector: 'app-asset-detail',
-  imports: [Icon, StatusBadge, EmptyState, RouterLink],
+  imports: [Icon, StatusBadge, EmptyState, RouterLink, RequestServiceModal, ProviderSearch, ServiceTracking],
   templateUrl: './asset-detail.html',
   styleUrl: './asset-detail.css',
 })
@@ -33,7 +36,15 @@ export class AssetDetail {
   imageFailed = signal(false);
   removing = signal(false);
 
-  private id = toSignal(this.route.paramMap.pipe(map((p) => p.get('id') ?? '')), {
+  // V2 Service Request flow
+  showServiceModal = signal(false);
+  showProviderSearch = signal(false);
+  showServiceTracking = signal(false);
+  serviceRequest = signal<ServiceRequest | null>(null);
+  providers = signal<ServiceProvider[]>([]);
+  selectedProvider = signal<ServiceProvider | null>(null);
+
+  id = toSignal(this.route.paramMap.pipe(map((p) => p.get('id') ?? '')), {
     initialValue: '',
   });
 
@@ -115,6 +126,71 @@ export class AssetDetail {
 
   addExpense(): void {
     this.flow.open('Expense', { assetId: this.id() });
+  }
+
+  requestService(): void {
+    this.showServiceModal.set(true);
+  }
+
+  async onServiceRequestSubmitted(data: {
+    type: ServiceType;
+    description: string;
+    budgetRange: string;
+    preferredTime: string;
+  }): Promise<void> {
+    try {
+      const request = await this.store.createServiceRequest({
+        assetId: this.id(),
+        type: data.type,
+        description: data.description,
+        budgetRange: data.budgetRange,
+        preferredTime: data.preferredTime,
+      });
+      this.serviceRequest.set(request);
+      this.showServiceModal.set(false);
+
+      // Search providers
+      const foundProviders = await this.store.searchProviders(
+        this.roomName(),
+        data.type,
+      );
+      this.providers.set(foundProviders);
+      this.showProviderSearch.set(true);
+    } catch (err) {
+      this.toasts.error(
+        friendlyError(err, 'Could not create service request'),
+      );
+    }
+  }
+
+  async onProviderSelected(provider: ServiceProvider): Promise<void> {
+    const request = this.serviceRequest();
+    if (!request) return;
+
+    try {
+      const updated = await this.store.confirmServiceRequest(request.id, provider.id);
+      this.serviceRequest.set(updated);
+      this.selectedProvider.set(provider);
+      this.showProviderSearch.set(false);
+      this.showServiceTracking.set(true);
+      this.toasts.show('Provider confirmed! Tracking your service request.', 'check-circle');
+    } catch (err) {
+      this.toasts.error(
+        friendlyError(err, 'Could not confirm provider'),
+      );
+    }
+  }
+
+  closeServiceModal(): void {
+    this.showServiceModal.set(false);
+  }
+
+  closeProviderSearch(): void {
+    this.showProviderSearch.set(false);
+  }
+
+  closeServiceTracking(): void {
+    this.showServiceTracking.set(false);
   }
 
   async toggleReminder(reminderId: string): Promise<void> {
