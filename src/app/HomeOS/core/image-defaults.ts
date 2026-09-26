@@ -13,7 +13,12 @@ export class ImageDefaults {
 
     if (name.includes('kitchen')) return ImageDefaults.kitchenPlaceholder();
     if (name.includes('living') || name.includes('lounge')) return ImageDefaults.livingRoomPlaceholder();
-    if (name.includes('bedroom') || name.includes('master')) return ImageDefaults.bedroomPlaceholder();
+    if (name.includes('master')) return ImageDefaults.bedroomPlaceholder();
+    if (name.includes('bedroom')) {
+      if (name.includes('2')) return ImageDefaults.bedroom2Placeholder();
+      if (name.includes('3')) return ImageDefaults.bedroom3Placeholder();
+      return ImageDefaults.bedroomPlaceholder();
+    }
     if (name.includes('bathroom') || name.includes('bath')) return ImageDefaults.bathroomPlaceholder();
     if (name.includes('study') || name.includes('office') || name.includes('work')) return ImageDefaults.studyPlaceholder();
     if (name.includes('garage')) return ImageDefaults.garagePlaceholder();
@@ -47,11 +52,19 @@ export class ImageDefaults {
   }
 
   private static livingRoomPlaceholder(): string {
-    return 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80';
+    return 'https://images.unsplash.com/photo-1493663671031-900c1e8e8e90?w=800&q=80';
   }
 
   private static bedroomPlaceholder(): string {
     return 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80';
+  }
+
+  private static bedroom2Placeholder(): string {
+    return 'https://images.unsplash.com/photo-1540932017986-8c6d7ceae91d?w=800&q=80';
+  }
+
+  private static bedroom3Placeholder(): string {
+    return 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80';
   }
 
   private static bathroomPlaceholder(): string {
