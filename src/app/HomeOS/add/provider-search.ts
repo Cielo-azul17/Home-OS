@@ -20,7 +20,7 @@ import { ServiceProvider } from '../core/models';
 
       <div class="providers-list">
         @for (provider of providers(); track provider.id) {
-          <div class="provider-card" (click)="selectProvider(provider)">
+          <div class="provider-card" (click)="viewDetails(provider)">
             <div class="provider-header">
               <div>
                 <div class="provider-name">{{ provider.name }}</div>
@@ -149,8 +149,17 @@ export class ProviderSearch {
   selected = output<ServiceProvider>();
   closeModal = output<void>();
 
-  selectProvider(provider: ServiceProvider): void {
-    this.selected.emit(provider);
+  selectedProvider = signal<ServiceProvider | null>(null);
+
+  viewDetails(provider: ServiceProvider): void {
+    this.selectedProvider.set(provider);
+  }
+
+  bookService(): void {
+    const provider = this.selectedProvider();
+    if (provider) {
+      this.selected.emit(provider);
+    }
   }
 
   close(): void {

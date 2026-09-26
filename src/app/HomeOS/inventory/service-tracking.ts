@@ -8,7 +8,8 @@ import { ServiceRequest, ServiceProvider } from '../core/models';
   imports: [CommonModule],
   template: `
     @if (request(); as req) {
-      <div class="tracking-container">
+      <div class="tracking-wrapper">
+        <div class="tracking-container">
         <div class="status-banner" [ngClass]="'status-' + req.status">
           <div class="status-icon">
             {{ getStatusIcon(req.status) }}
@@ -91,9 +92,16 @@ import { ServiceRequest, ServiceProvider } from '../core/models';
           </div>
         }
       </div>
+        </div>
     }
   `,
   styles: [`
+    .tracking-wrapper {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
     .tracking-container {
       display: flex;
       flex-direction: column;
