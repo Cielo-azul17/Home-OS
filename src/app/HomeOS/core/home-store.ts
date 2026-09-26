@@ -16,6 +16,7 @@ import {
   Room,
   StatusBadgeModel,
 } from './models';
+import { ImageDefaults } from './image-defaults';
 import {
   daysUntil,
   formatCurrency,
@@ -339,7 +340,12 @@ export class HomeStore {
      for Postgres. */
 
   async addAsset(input: Omit<Asset, 'id' | 'history'>): Promise<Asset> {
-    const draft: Asset = { ...input, id: uid('a'), history: [] };
+    const draft: Asset = {
+      ...input,
+      id: uid('a'),
+      history: [],
+      image: input.image || ImageDefaults.assetImage(input.category),
+    };
     const asset = await this.api.createAsset(draft);
     this.assets.update((list) => [asset, ...list]);
     this.logActivity('box', `Added ${asset.name}`, this.roomName(asset.roomId));
@@ -433,7 +439,11 @@ export class HomeStore {
   }
 
   async addRoom(name: string, image?: string): Promise<Room> {
-    const draft: Room = { id: uid('room'), name, image: image ?? '' };
+    const draft: Room = {
+      id: uid('room'),
+      name,
+      image: image ?? ImageDefaults.roomImage(name),
+    };
     const room = await this.api.createRoom(draft);
     this.rooms.update((list) => [...list, room]);
     this.logActivity('door', `Added ${room.name}`, 'Rooms');
