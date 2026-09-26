@@ -165,7 +165,7 @@ import { OnboardingAddRoom } from './onboarding-add-room';
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 4px;
       padding: 12px;
       background: #f9f9f9;
       border-radius: 8px;
