@@ -40,10 +40,6 @@ import { ServiceProvider } from '../core/models';
             </div>
           }
         </div>
-
-        <ng-container modalFooter>
-          <button type="button" class="btn btn-ghost" (click)="close()">Cancel</button>
-        </ng-container>
       } @else if (selectedProvider(); as provider) {
         <div class="provider-detail-layout">
           <div class="provider-content">
@@ -119,6 +115,10 @@ import { ServiceProvider } from '../core/models';
           <button type="button" class="btn btn-ghost" modalFooter (click)="selectedProvider.set(null)">Back</button>
           <button type="button" class="btn btn-primary" modalFooter (click)="bookService()">📅 Book Service</button>
         </div>
+      }
+
+      @if (!selectedProvider()) {
+        <button type="button" class="btn btn-ghost" modalFooter (click)="close()">Cancel</button>
       }
     </app-modal>
   `,

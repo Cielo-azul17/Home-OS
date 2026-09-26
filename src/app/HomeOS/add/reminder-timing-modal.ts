@@ -22,7 +22,7 @@ export interface ReminderTiming {
         <!-- Service Date Info -->
         <div class="service-info">
           <div class="info-label">Service Scheduled For:</div>
-          <div class="info-date">📅 {{ scheduledDate }}</div>
+          <div class="info-date">📅 {{ scheduledDate() }}</div>
         </div>
 
         <!-- Reminder Timing Options -->
