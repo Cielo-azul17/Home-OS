@@ -127,6 +127,22 @@
           <option [value]="room.id">{{ room.name }}</option>
         }
       </select>
+
+      @if (suggestedRoom() && !rooms().some((r) => r.name === suggestedRoom())) {
+        <div class="room-suggestion">
+          <div class="suggestion-icon">💡</div>
+          <div class="suggestion-body">
+            <p class="suggestion-text">This product belongs in <strong>{{ suggestedRoom() }}</strong></p>
+            <button type="button" class="link" (click)="createAndAcceptRoom()">
+              Create {{ suggestedRoom() }} and add here
+            </button>
+          </div>
+        </div>
+      } @else if (suggestedRoom() && rooms().some((r) => r.name === suggestedRoom())) {
+        <button type="button" class="btn-suggest-room" (click)="acceptSuggestedRoom()">
+          💡 Move to {{ suggestedRoom() }}
+        </button>
+      }
     </div>
 
     <div class="field-row">

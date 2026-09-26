@@ -54,6 +54,7 @@ export class AddAssetModal implements OnInit {
   brand = '';
   category: AssetCategory = 'Electronics';
   roomId = '';
+  suggestedRoom = signal<string | null>(null);
   purchaseDate = '';
   purchasePrice: number | null = null;
   warrantyExpiry = '';
@@ -109,6 +110,29 @@ export class AddAssetModal implements OnInit {
     return this.store.roomName(id);
   }
 
+  acceptSuggestedRoom(): void {
+    const suggested = this.suggestedRoom();
+    if (!suggested) return;
+    this.roomId = suggested;
+    this.suggestedRoom.set(null);
+  }
+
+  async createAndAcceptRoom(): Promise<void> {
+    const suggested = this.suggestedRoom();
+    if (!suggested) return;
+
+    try {
+      const created = await this.store.addRoom(suggested);
+      this.roomId = created.id;
+      this.suggestedRoom.set(null);
+      this.toasts.show(`${suggested} created`, 'plus');
+    } catch (err) {
+      this.toasts.error(
+        err instanceof Error ? err.message : 'Could not create room.',
+      );
+    }
+  }
+
   async onPhoto(urls: string[]): Promise<void> {
     const dataUrl = urls[0];
     if (!dataUrl) return;
@@ -137,6 +161,7 @@ export class AddAssetModal implements OnInit {
         this.purchasePrice = a.purchasePrice ?? this.purchasePrice;
         this.warrantyExpiry = a.warrantyExpiry ?? this.warrantyExpiry;
         this.serialNumber = a.serialNumber ?? this.serialNumber;
+        this.suggestedRoom.set(a.suggestedRoom ?? null);
       }
 
       const firstExpense = first?.expense;
@@ -166,6 +191,7 @@ export class AddAssetModal implements OnInit {
   clearPhoto(): void {
     this.photo.set(null);
     this.aiError.set('');
+    this.suggestedRoom.set(null);
     this.expenseExtra.set(null);
     this.documentExtra.set(null);
     this.extraAssets.set(0);

@@ -161,3 +161,56 @@
   color: var(--color-sage);
   text-decoration: underline;
 }
+
+/* Room suggestion */
+
+.room-suggestion {
+  display: flex;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12);
+  margin-top: var(--spacing-12);
+  background: linear-gradient(to right, var(--color-mustard-soft), rgba(251, 191, 36, 0.05));
+  border-left: 4px solid var(--color-mustard);
+  border-radius: 0 var(--radius-card) var(--radius-card) 0;
+  align-items: flex-start;
+}
+
+.suggestion-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.suggestion-body {
+  flex: 1;
+}
+
+.suggestion-text {
+  margin: 0 0 var(--spacing-8) 0;
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  color: var(--color-charcoal);
+}
+
+.suggestion-text strong {
+  color: var(--color-orange);
+}
+
+.btn-suggest-room {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-10) var(--spacing-12);
+  margin-top: var(--spacing-12);
+  background: var(--color-mustard-soft);
+  border: 1px solid var(--color-mustard);
+  border-radius: var(--radius-card);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  color: var(--color-charcoal);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-suggest-room:hover {
+  background: var(--color-mustard);
+  border-color: var(--color-orange);
+}
