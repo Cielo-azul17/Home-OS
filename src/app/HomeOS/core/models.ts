@@ -237,6 +237,7 @@ export interface AiAssetDraft {
   brand?: string;
   category: AssetCategory;
   roomId: string;
+  suggestedRoom?: string;
   purchaseDate?: string;
   purchasePrice?: number;
   warrantyExpiry?: string;

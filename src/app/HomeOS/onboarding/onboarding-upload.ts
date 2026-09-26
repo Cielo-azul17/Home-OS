@@ -13,6 +13,7 @@ interface ExtractedItem {
   keep: boolean;
   open: boolean;
   data: any;
+  suggestedRoom?: string;
 }
 
 interface ProcessingState {
@@ -44,8 +45,37 @@ interface ProcessingState {
 
 
         <div class="upload-content">
-                @if (!uploading() && !reviewing()) {
-                  <div
+          @if (showRoomSuggestions()) {
+            <div class="room-suggestions-panel">
+              <div class="suggestions-header">
+                <h3>🏠 Create Missing Rooms?</h3>
+                <p>We found items that belong in rooms you haven't created yet. Want to add them?</p>
+              </div>
+
+              <div class="suggestions-list">
+                @for (room of suggestedRooms(); track room) {
+                  <div class="suggestion-item">
+                    <div class="suggestion-content">
+                      <p class="suggestion-room">{{ room }}</p>
+                      <p class="suggestion-hint">Items like furniture, appliances typical for this room</p>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      (click)="acceptSuggestedRoom(room)"
+                    >
+                      Create {{ room }}
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <button type="button" class="btn btn-secondary" (click)="skipRoomSuggestions()">
+                Skip for now
+              </button>
+            </div>
+          } @else if (!uploading() && !reviewing()) {
+            <div
                     class="upload-area"
                     (dragover)="dragOver.set(true)"
                     (dragleave)="dragOver.set(false)"
@@ -844,6 +874,68 @@ interface ProcessingState {
     .error-actions .btn {
       flex: 1;
     }
+
+    .room-suggestions-panel {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .suggestions-header {
+      text-align: center;
+    }
+
+    .suggestions-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .suggestions-header p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .suggestions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .suggestion-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border: 2px solid #e8eef5;
+      border-radius: 8px;
+      background: #f9fafb;
+    }
+
+    .suggestion-content {
+      flex: 1;
+    }
+
+    .suggestion-room {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .suggestion-hint {
+      font-size: 12px;
+      color: #999;
+      margin: 0;
+    }
+
+    .suggestion-item .btn {
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
   `]
 })
 export class OnboardingUpload {
@@ -856,6 +948,8 @@ export class OnboardingUpload {
   reviewing = signal(false);
   extractionError = signal('');
   extractedItems = signal<ExtractedItem[]>([]);
+  suggestedRooms = signal<string[]>([]);
+  showRoomSuggestions = signal(false);
 
   // For edit forms
   assetCategories = ASSET_CATEGORIES;
@@ -926,12 +1020,20 @@ export class OnboardingUpload {
             if (group.asset) {
               const a = group.asset;
               const roomId = rooms.some(r => r.id === a.roomId) ? a.roomId : (rooms[0]?.id ?? '');
+
+              // Track suggested room if provided and doesn't exist yet
+              if (a.suggestedRoom && !rooms.some(r => r.name.toLowerCase() === a.suggestedRoom!.toLowerCase())) {
+                this.suggestedRooms.update(existing =>
+                  existing.includes(a.suggestedRoom!) ? existing : [...existing, a.suggestedRoom!]
+                );
+              }
+
               this.extractedItems.update(items => [...items, {
                 key: `asset-${i}-${gi}`,
                 kind: 'asset',
                 keep: true,
                 open: false,
-                data: { name: a.name, brand: a.brand ?? '', category: a.category, roomId, purchaseDate: a.purchaseDate ?? '', purchasePrice: a.purchasePrice, warrantyExpiry: a.warrantyExpiry ?? '', serialNumber: a.serialNumber ?? '' }
+                data: { name: a.name, brand: a.brand ?? '', category: a.category, roomId, suggestedRoom: a.suggestedRoom ?? '', purchaseDate: a.purchaseDate ?? '', purchasePrice: a.purchasePrice, warrantyExpiry: a.warrantyExpiry ?? '', serialNumber: a.serialNumber ?? '' }
               }]);
             }
             if (group.expense) {
@@ -969,7 +1071,12 @@ export class OnboardingUpload {
         this.extractionError.set('No items could be extracted from the bills. The image may be unclear or invalid. Try uploading a clearer bill image.');
         this.reviewing.set(true);
       } else {
-        this.reviewing.set(true);
+        // Show room suggestions first if any exist
+        if (this.suggestedRooms().length > 0) {
+          this.showRoomSuggestions.set(true);
+        } else {
+          this.reviewing.set(true);
+        }
       }
     } catch (err) {
       console.error('Error in processFiles', err);
@@ -1006,6 +1113,42 @@ export class OnboardingUpload {
       this.reviewing.set(false);
       this.processFiles(this.lastFiles);
     }
+  }
+
+  async acceptSuggestedRoom(roomName: string) {
+    try {
+      // Create the new room
+      const newRoom = await this.store.addRoom(roomName);
+
+      // Reallocate items with this suggested room
+      this.extractedItems.update(items =>
+        items.map(item => {
+          if (item.kind === 'asset' && item.data.suggestedRoom === roomName) {
+            return {
+              ...item,
+              data: { ...item.data, roomId: newRoom.id }
+            };
+          }
+          return item;
+        })
+      );
+
+      // Remove from suggestions list
+      this.suggestedRooms.update(rooms => rooms.filter(r => r !== roomName));
+
+      // If no more suggestions, proceed to review
+      if (this.suggestedRooms().length === 0) {
+        this.showRoomSuggestions.set(false);
+        this.reviewing.set(true);
+      }
+    } catch (err) {
+      console.error('Failed to create suggested room:', roomName, err);
+    }
+  }
+
+  skipRoomSuggestions() {
+    this.showRoomSuggestions.set(false);
+    this.reviewing.set(true);
   }
 
   async saveItems() {
