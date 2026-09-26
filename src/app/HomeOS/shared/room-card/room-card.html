@@ -1,10 +1,9 @@
 <a class="room-card" [routerLink]="['/rooms', room().id]">
   <div class="image-frame">
-    @if (room().image) {
-      <img [src]="room().image" [alt]="room().name" loading="lazy" />
+    @if (room().image && !imageError()) {
+      <img [src]="room().image" [alt]="room().name" loading="lazy" (error)="onImageError()" />
     } @else {
-      <!-- A room the user added without a photo — a calm tile, never a
-           broken image. -->
+      <!-- A room the user added without a photo, or image failed to load — a calm tile. -->
       <div class="image-fallback">
         <app-icon name="door" [size]="28" />
       </div>
