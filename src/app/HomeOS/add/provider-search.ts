@@ -10,38 +10,74 @@ import { ServiceProvider } from '../core/models';
   imports: [CommonModule, Modal],
   template: `
     <app-modal
-      title="Select Provider"
-      subtitle="Choose a service provider near you"
+      [title]="selectedProvider() ? 'Provider Details' : 'Select Provider'"
+      [subtitle]="selectedProvider() ? selectedProvider()!.name : 'Choose a service provider near you'"
       (closed)="close()"
     >
-      <div class="search-info">
-        <p>Found {{ providers().length }} providers matching your needs</p>
-      </div>
+      @if (!selectedProvider()) {
+        <div class="search-info">
+          <p>Found {{ providers().length }} providers matching your needs</p>
+        </div>
 
-      <div class="providers-list">
-        @for (provider of providers(); track provider.id) {
-          <div class="provider-card" (click)="viewDetails(provider)">
-            <div class="provider-header">
-              <div>
-                <div class="provider-name">{{ provider.name }}</div>
-                <div class="provider-distance">{{ provider.distance | number: '1.1-1' }} km away</div>
+        <div class="providers-list">
+          @for (provider of providers(); track provider.id) {
+            <div class="provider-card" (click)="viewDetails(provider)">
+              <div class="provider-header">
+                <div>
+                  <div class="provider-name">{{ provider.name }}</div>
+                  <div class="provider-distance">{{ provider.distance | number: '1.1-1' }} km away • 📍 View details</div>
+                </div>
+                <div class="provider-rating">
+                  <span class="stars">{{ getStars(provider.rating) }}</span>
+                  <span>({{ provider.reviewCount }})</span>
+                </div>
               </div>
-              <div class="provider-rating">
-                <span class="stars">{{ getStars(provider.rating) }}</span>
-                <span>({{ provider.reviewCount }})</span>
+              <div class="provider-details">
+                <span>📞 {{ provider.phone }}</span>
+                <span>{{ provider.priceRange }}</span>
               </div>
             </div>
-            <div class="provider-details">
-              <span>📞 {{ provider.phone }}</span>
-              <span>{{ provider.priceRange }}</span>
+          }
+        </div>
+
+        <ng-container modalFooter>
+          <button type="button" class="btn btn-ghost" (click)="close()">Cancel</button>
+        </ng-container>
+      } @else if (selectedProvider(); as provider) {
+        <div class="provider-detail">
+          <div class="detail-section">
+            <div class="back-btn" (click)="selectedProvider.set(null)">← Back to providers</div>
+
+            <div class="detail-rating">
+              <span class="stars">{{ getStars(provider.rating) }}</span>
+              <span class="rating-count">({{ provider.reviewCount }} reviews)</span>
             </div>
           </div>
-        }
-      </div>
 
-      <ng-container modalFooter>
-        <button type="button" class="btn btn-ghost" (click)="close()">Cancel</button>
-      </ng-container>
+          <div class="detail-section">
+            <p class="section-title">📍 Location</p>
+            <div class="map-container">
+              <div class="map-view">📍 Map: {{ provider.address }} ({{ provider.lat }}, {{ provider.lng }})</div>
+              <p class="distance">{{ provider.distance | number: '1.1-1' }} km away</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <p class="section-title">📞 Contact</p>
+            <p class="detail-text">{{ provider.phone }}</p>
+          </div>
+
+          <div class="detail-section">
+            <p class="section-title">💰 Price Range</p>
+            <p class="detail-text">{{ provider.priceRange }}</p>
+          </div>
+
+          <ng-container modalFooter>
+            <button type="button" class="btn btn-ghost" (click)="selectedProvider.set(null)">Back</button>
+            <button type="button" class="btn btn-primary" (click)="bookService()">✓ Book Service</button>
+          </ng-container>
+        </div>
+      }
     </app-modal>
   `,
   styles: [`
@@ -141,6 +177,83 @@ import { ServiceProvider } from '../core/models';
     .btn-ghost:hover {
       background: #f9fafb;
       color: #333;
+    }
+
+    .provider-detail {
+      padding: 0 -12px;
+    }
+
+    .back-btn {
+      cursor: pointer;
+      color: #4b5563;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .back-btn:hover {
+      color: #1f2937;
+    }
+
+    .detail-rating {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .rating-count {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .detail-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-section:last-child {
+      border-bottom: none;
+    }
+
+    .section-title {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #666;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-text {
+      margin: 0;
+      font-size: 14px;
+      color: #1f2937;
+    }
+
+    .map-container {
+      padding: 12px;
+      background: #f0f4ff;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .map-view {
+      margin: 0;
+      padding: 8px;
+      background: #e8eef5;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #4b5563;
+      text-align: center;
+    }
+
+    .distance {
+      margin: 8px 0 0 0;
+      font-size: 13px;
+      color: #666;
     }
   `]
 })
