@@ -140,6 +140,16 @@ interface ProcessingState {
                               </button>
                             </div>
 
+                            @if (item.kind === 'asset' && item.data.suggestedRoom && !getSuggestedRoomId(item.data.suggestedRoom)) {
+                              <div class="room-suggestion-banner">
+                                <div class="suggestion-icon">💡</div>
+                                <div class="suggestion-text">
+                                  <p class="suggestion-label">This belongs in <strong>{{ item.data.suggestedRoom }}</strong></p>
+                                  <p class="suggestion-hint">Create the room to organize this item correctly</p>
+                                </div>
+                              </div>
+                            }
+
                             @if (item.open) {
                               <div class="record-edit">
                                 @if (item.kind === 'asset') {
@@ -937,6 +947,43 @@ interface ProcessingState {
     .btn-suggest-room:hover {
       background: #fcd34d;
       border-color: #f59e0b;
+    }
+
+    .room-suggestion-banner {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      margin: 0 0 12px 0;
+      background: linear-gradient(to right, #fef3c7, #fef9e7);
+      border-left: 4px solid #fbbf24;
+      border-radius: 0 6px 6px 0;
+      align-items: flex-start;
+    }
+
+    .suggestion-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .suggestion-text {
+      flex: 1;
+    }
+
+    .suggestion-label {
+      margin: 0 0 4px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #92400e;
+    }
+
+    .suggestion-label strong {
+      color: #d97706;
+    }
+
+    .suggestion-hint {
+      margin: 0;
+      font-size: 12px;
+      color: #b45309;
     }
   `]
 })
