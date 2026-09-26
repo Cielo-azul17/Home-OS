@@ -45,36 +45,7 @@ interface ProcessingState {
 
 
         <div class="upload-content">
-          @if (showRoomSuggestions()) {
-            <div class="room-suggestions-panel">
-              <div class="suggestions-header">
-                <h3>🏠 Create Missing Rooms?</h3>
-                <p>We found items that belong in rooms you haven't created yet. Want to add them?</p>
-              </div>
-
-              <div class="suggestions-list">
-                @for (room of suggestedRooms(); track room) {
-                  <div class="suggestion-item">
-                    <div class="suggestion-content">
-                      <p class="suggestion-room">{{ room }}</p>
-                      <p class="suggestion-hint">Items like furniture, appliances typical for this room</p>
-                    </div>
-                    <button
-                      type="button"
-                      class="btn btn-primary"
-                      (click)="acceptSuggestedRoom(room)"
-                    >
-                      Create {{ room }}
-                    </button>
-                  </div>
-                }
-              </div>
-
-              <button type="button" class="btn btn-secondary" (click)="skipRoomSuggestions()">
-                Skip for now
-              </button>
-            </div>
-          } @else if (!uploading() && !reviewing()) {
+          @if (!uploading() && !reviewing()) {
             <div
                     class="upload-area"
                     (dragover)="dragOver.set(true)"
@@ -192,11 +163,23 @@ interface ProcessingState {
                                   </div>
                                   <div class="field">
                                     <label class="field-label">Room</label>
-                                    <select class="select" [(ngModel)]="item.data.roomId">
-                                      @for (room of rooms(); track room.id) {
-                                        <option [value]="room.id">{{ room.name }}</option>
+                                    <div style="display: flex; gap: 8px; align-items: flex-start;">
+                                      <select class="select" [(ngModel)]="item.data.roomId" style="flex: 1;">
+                                        @for (room of rooms(); track room.id) {
+                                          <option [value]="room.id">{{ room.name }}</option>
+                                        }
+                                      </select>
+                                      @if (item.data.suggestedRoom && getSuggestedRoomId(item.data.suggestedRoom) && getSuggestedRoomId(item.data.suggestedRoom) !== item.data.roomId) {
+                                        <button
+                                          type="button"
+                                          class="btn-suggest-room"
+                                          (click)="item.data.roomId = getSuggestedRoomId(item.data.suggestedRoom)!"
+                                          title="Move to suggested room"
+                                        >
+                                          💡 {{ item.data.suggestedRoom }}
+                                        </button>
                                       }
-                                    </select>
+                                    </div>
                                   </div>
                                   <div class="field-row">
                                     <div class="field">
@@ -936,6 +919,25 @@ interface ProcessingState {
       flex-shrink: 0;
       margin-left: 12px;
     }
+
+    .btn-suggest-room {
+      padding: 8px 12px;
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #92400e;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-suggest-room:hover {
+      background: #fcd34d;
+      border-color: #f59e0b;
+    }
   `]
 })
 export class OnboardingUpload {
@@ -949,7 +951,6 @@ export class OnboardingUpload {
   extractionError = signal('');
   extractedItems = signal<ExtractedItem[]>([]);
   suggestedRooms = signal<string[]>([]);
-  showRoomSuggestions = signal(false);
 
   // For edit forms
   assetCategories = ASSET_CATEGORIES;
@@ -1071,12 +1072,8 @@ export class OnboardingUpload {
         this.extractionError.set('No items could be extracted from the bills. The image may be unclear or invalid. Try uploading a clearer bill image.');
         this.reviewing.set(true);
       } else {
-        // Show room suggestions first if any exist
-        if (this.suggestedRooms().length > 0) {
-          this.showRoomSuggestions.set(true);
-        } else {
-          this.reviewing.set(true);
-        }
+        // Show review screen with inline room suggestions
+        this.reviewing.set(true);
       }
     } catch (err) {
       console.error('Error in processFiles', err);
@@ -1115,40 +1112,8 @@ export class OnboardingUpload {
     }
   }
 
-  async acceptSuggestedRoom(roomName: string) {
-    try {
-      // Create the new room
-      const newRoom = await this.store.addRoom(roomName);
-
-      // Reallocate items with this suggested room
-      this.extractedItems.update(items =>
-        items.map(item => {
-          if (item.kind === 'asset' && item.data.suggestedRoom === roomName) {
-            return {
-              ...item,
-              data: { ...item.data, roomId: newRoom.id }
-            };
-          }
-          return item;
-        })
-      );
-
-      // Remove from suggestions list
-      this.suggestedRooms.update(rooms => rooms.filter(r => r !== roomName));
-
-      // If no more suggestions, proceed to review
-      if (this.suggestedRooms().length === 0) {
-        this.showRoomSuggestions.set(false);
-        this.reviewing.set(true);
-      }
-    } catch (err) {
-      console.error('Failed to create suggested room:', roomName, err);
-    }
-  }
-
-  skipRoomSuggestions() {
-    this.showRoomSuggestions.set(false);
-    this.reviewing.set(true);
+  getSuggestedRoomId(roomName: string): string | undefined {
+    return this.store.rooms().find(r => r.name.toLowerCase() === roomName.toLowerCase())?.id;
   }
 
   async saveItems() {
